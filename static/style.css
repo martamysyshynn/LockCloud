@@ -277,3 +277,104 @@ body {
 .security-image img {
     width: 220px;
 }
+
+/* SIGN UP PAGE */
+.signup {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 120px 160px;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.signup-form {
+    background-color: #020002;
+    padding: 40px;
+    border-radius: 50px;
+    width: 420px;
+}
+
+.signup-form h1 {
+    color: #D09EF2;
+    font-size: 48px;
+    margin-bottom: 25px;
+}
+
+.signup-form label {
+    font-size: 14px;
+    color: #fff;
+}
+
+.signup-form input {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0 18px;
+    border-radius: 14px;
+    border: none;
+    background-color: #272626;
+    color: #fff;
+}
+
+/* PASSWORD ROW */
+.signup-passwords {
+    display: flex;
+    gap: 30px;
+}
+
+.signup-passwords div {
+    width: 100%;
+}
+
+/* 2FA */
+.signup-2fa {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    margin: 15px 2 25px;
+    color: #fff;
+    white-space: nowrap; 
+}
+.signup-2fa input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+}
+
+/* BUTTON */
+.signup-btn {
+    width: 100%;
+    padding: 14px;
+    background-color: #D09EF2;
+    color: #020002;
+    border: none;
+    border-radius: 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.signup-btn:hover {
+    opacity: 0.9;
+}
+
+/* LOGIN LINK */
+.signup-login {
+    text-align: center;
+    margin-top: 18px;
+}
+
+.signup-login a {
+    color: #D09EF2;
+    text-decoration: none;
+}
+
+/* IMAGE SIDE */
+.signup-image {
+    text-align: center;
+    color: #D09EF2;
+    font-size: 24px;      
+}
+
+.signup-image img {
+    width: 600px;
+    margin-bottom: 20px;
+}

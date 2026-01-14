@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="top-bar-content">
+    <div class="name-text">Cloud Storage Name</div>
+    <div class="buttons">
+        <a href="#" class="btn-language"><i class="fas fa-globe"></i></a>
+        <a href="{{ url_for('home') }}" class="btn-home">Home</a>
+    </div>
+</div>
+
+<section class="signup">
+    <div class="signup-form">
+        <h1>Sign Up</h1>
+
+        <label>Full Name</label>
+        <input type="text">
+
+        <label>Email Address</label>
+        <input type="email">
+
+        <div class="signup-passwords">
+            <div>
+                <label>Password</label>
+                <input type="password">
+            </div>
+            <div>
+                <label>Confirm Password</label>
+                <input type="password">
+            </div>
+        </div>
+
+        <div class="signup-2fa">
+            <span>Two-Factor Authentication</span>
+            <input type="checkbox">
+        </div>
+
+        <button class="signup-btn">Sign Up</button>
+
+        <p class="signup-login">
+            Already have an account?
+            <a href="#">Sign In</a>
+        </p>
+    </div>
+
+    <div class="signup-image">
+        <img src="{{ url_for('static', filename='img/img3.png') }}" alt="Secure cloud">
+        <p>Create your secure cloud<br>storage account</p>
+    </div>
+</section>
+
+{% endblock %}
