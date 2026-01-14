@@ -1,7 +1,80 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
-
 {% block content %}
+<div class="top-bar-content">
+    <div class="name-text">Cloud Storage Name</div>
+    <div class="buttons">
+        <a href="#" class="btn-language"><i class="fas fa-globe"></i></a>
+
+        <a href="#" class="btn-signin">Sign In</a>
+        <a href="#" class="btn-signup">Sign Up</a>
+    </div>
+</div>
+<section class="hero">
+    <div class="hero-content">
+        <h1>Cloud Storage</h1>
+        <p>
+            Store, organize, share files, and<br>
+            control access.
+        </p>
+        <button class="hero-btn">Get Started</button>
+    </div>
+
+    <div class="hero-image">
+        <img src="{{ url_for('static', filename='img/img1.png') }}" alt="Cloud Storage">
+    </div>
+</section>
+<section class="features">
+    <div class="feature-card">
+        <i class="fas fa-folder feature-icon"></i>
+        <h3>File Storage</h3>
+        <p>Securely store all<br>your files in one place</p>
+    </div>
+
+    <div class="feature-card">
+        <i class="fas fa-share-alt feature-icon"></i>
+        <h3>File Sharing</h3>
+        <p>Easily share files<br>with others</p>
+    </div>
+
+    <div class="feature-card">
+        <i class="fas fa-cog feature-icon"></i>
+        <h3>File Management</h3>
+        <p>Organize your files<br>and folders</p>
+    </div>
+</section>
+<section class="security">
+    <div class="security-box">
+        <div class="security-text">
+            <h2>Adaptive multi-level access control</h2>
+            <p class="security-desc">
+                Our system combines two-factor authentication with real-time
+                behavioral analysis to ensure secure access.
+            </p>
+
+            <ul class="security-list">
+                <li>
+                    <span class="check">✓</span>
+                    Behavioral signals: IP address, geolocation, time of login,
+                    device type, activity patterns
+                </li>
+                <li>
+                    <span class="check">✓</span>
+                    Adaptive responses: additional verification for unusual
+                    locations, hours, or devices
+                </li>
+                <li>
+                    <span class="check">✓</span>
+                    Smart protection: suspicious behavior triggers temporary
+                    restrictions and identity confirmation
+                </li>
+            </ul>
+        </div>
+
+        <div class="security-image">
+            <img src="{{ url_for('static', filename='img/img2.png') }}" alt="Security">
+        </div>
+    </div>
+</section>
 
 {% endblock %}

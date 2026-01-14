@@ -1,0 +1,279 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    margin: 0;
+    background-color: #100F10;
+    margin-top: 73px;
+    padding-bottom: 73px;
+    font-family: Itim, sans-serif;
+    color: #fff;
+}
+
+/* Верхня смужка */
+.top-bar {
+    background-color: #020002; 
+    height: 73px;               
+    width: 100%;              
+    position: fixed;            
+    top: 0;
+    left: 0;
+    z-index: 1000;              
+}
+
+/* Нижня смужка */
+.bottom-bar {
+    background-color: #020002; 
+    height: 73px;               
+    width: 100%;             
+    position: fixed;            
+    bottom: 0;
+    left: 0;
+    z-index: 500;              
+}
+
+/* Контент у верхній смужці */
+.top-bar-content {
+    position: fixed;      
+    top: 0;
+    left: 0;
+    width: 100%;               
+    max-width: 100%;   
+    height: 73px;         
+    display: flex;
+    align-items: center;  
+    justify-content: space-between; 
+    padding: 0 20px;        
+    box-sizing: border-box;  
+    z-index: 1001;        
+}
+
+.bottom-bar {
+    background-color: #020002; /* колір схожий на верхню смужку */
+    height: 73px;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    z-index: 1000;
+}
+
+.bottom-bar a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 20px;
+}
+
+.bottom-bar a:hover {
+    text-decoration: underline;
+}
+
+.name-text {
+    color: #D09EF2;                
+    font-size: 29px;                
+    font-family: 'Itim';  
+    font-weight: bold;              
+    line-height: 48px;              
+}
+
+.buttons {
+    display: flex;
+    align-items: center;
+}
+
+.btn-language {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;             
+    height: 40px;
+    color: #D09EF2;      
+    background-color: transparent;
+    border: none !important;          
+    margin-right: 10px;      
+    text-decoration: none;
+    font-size: 18px;
+    transition: 0.3s;
+}
+
+.buttons a.btn-signin {
+    margin-left: 0;      
+}
+
+.buttons a {
+    text-decoration: none;   
+    color: #D09EF2;          
+    font-size: 18px;         
+    font-weight: bold;
+    margin-left: 15px;       
+    padding: 8px 16px;       
+    border: 2px solid #D09EF2;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.buttons a.btn-signup {
+    background-color: #D09EF2;
+    color: #020002;           
+}
+
+.buttons a:hover {
+    opacity: 0.8;            
+}
+
+/* HERO */
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 100px;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.hero-content {
+    margin-top: -300px;   /* піднімає весь блок трохи вище */
+}
+
+/* LEFT */
+.hero-content h1 {
+    font-size: 64px;
+    color: #D09EF2;
+    margin-bottom: 30px;
+}
+
+.hero-content p {
+    font-size: 18px;
+    line-height: 1.6;
+    color: #D09EF2;
+    margin-bottom: 40px;
+}
+
+.hero-btn {
+    background: #D09EF2;
+    color: #000;
+    border: none;        
+    outline: none;       
+    padding: 20px 90px;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.hero-btn:hover {
+    background: #D09EF2;
+}
+
+/* RIGHT */
+.hero-image img {
+    margin-top: -150px;
+    max-width: 500px;
+    width: 100%;
+}
+
+/* FEATURES SECTION */
+.features {
+    margin-top: -250px;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 80px 40px;
+}
+
+.feature-card {
+    background-color: #201F1F;     /* колір прямокутника */
+    border-radius: 20px;           /* заокруглення */
+    width: 320px;
+    padding: 30px;
+    color: #DEBEF3;                /* фіолетовий контент */
+    text-align: left;
+}
+
+.feature-icon {
+    font-size: 40px;
+    margin-bottom: 20px;
+    color: #DEBEF3;
+}
+
+.feature-card h3 {
+    font-size: 22px;
+    margin-bottom: 12px;
+}
+
+.feature-card p {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* SECURITY SECTION */
+.security {
+    margin-top: -20px;
+    padding: 80px 40px;
+}
+
+.security-box {
+    background-color: #2C2C2C;
+    border-radius: 24px;
+    padding: 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1120px;
+    margin: 0 auto;
+    box-shadow: 0 0 0 2px #DEBEF3;
+}
+
+.security-text {
+    max-width: 65%;
+    color: #DEBEF3;
+}
+
+.security-text h2 {
+    font-family: 'Itim';
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+.security-desc {
+    font-size: 16px;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.security-list {
+    list-style: none;
+    padding: 0;
+}
+
+.security-list li {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.check {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 22px;
+    height: 22px;
+    background-color: #DEBEF3;
+    color: #2A2A2A;
+    border-radius: 4px;
+    font-weight: bold;
+    margin-right: 14px;
+    margin-top: 3px;
+}
+
+.security-image img {
+    width: 220px;
+}
