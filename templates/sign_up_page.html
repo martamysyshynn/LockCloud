@@ -14,29 +14,33 @@
     <div class="signup-form">
         <h1>Sign Up</h1>
 
-        <label>Full Name</label>
-        <input type="text">
+        <form method="POST">
 
-        <label>Email Address</label>
-        <input type="email">
+            <label>Full Name</label>
+            <input type="text" name="full_name" required>
 
-        <div class="signup-passwords">
-            <div>
-                <label>Password</label>
-                <input type="password">
+            <label>Email Address</label>
+            <input type="email" name="email" required>
+
+            <div class="signup-passwords">
+                <div>
+                    <label>Password</label>
+                    <input type="password" name="password" required>
+                </div>
+                <div>
+                    <label>Confirm Password</label>
+                    <input type="password" name="confirm_password" required>
+                </div>
             </div>
-            <div>
-                <label>Confirm Password</label>
-                <input type="password">
+
+            <div class="signup-2fa">
+                <span>Two-Factor Authentication</span>
+                <input type="checkbox" name="two_fa">
             </div>
-        </div>
 
-        <div class="signup-2fa">
-            <span>Two-Factor Authentication</span>
-            <input type="checkbox">
-        </div>
+            <button type="submit" class="signup-btn">Sign Up</button>
 
-        <button class="signup-btn">Sign Up</button>
+        </form>
 
         <p class="signup-login">
             Already have an account?

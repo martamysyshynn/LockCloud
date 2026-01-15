@@ -13,23 +13,25 @@
     <div class="signin-form">
         <h1>Sign In</h1>
 
-        <label>Full Name</label>
-        <input type="text" placeholder="Enter your name">
+        <form method="POST" action="{{ url_for('signin') }}">
+            <label>Email Address</label>
+            <input type="email" name="email" placeholder="Enter your email" required>
 
-        <label>Password</label>
-        <div class="signin-password">
-            <input type="password" placeholder="Enter password">
-        </div>
+            <label>Password</label>
+            <div class="signin-password">
+                <input type="password" name="password" placeholder="Enter password" required>
+            </div>
 
-        <a href="#" class="signin-forgot">Forgot password?</a>
+            <a href="#" class="signin-forgot">Forgot password?</a>
 
-        <label class="signin-remember">
-            <input type="checkbox" checked>
-            Remember Me
-        </label>
+            <label class="signin-remember">
+                <input type="checkbox" name="remember_me" checked>
+                Remember Me
+            </label>
 
-        <button class="signin-btn">Sign In</button>
-
+            <button type="submit" class="signin-btn">Sign In</button>
+        </form>
+        
         <p class="signin-signup">
             Don’t have an account?
             <a href="{{ url_for('signup') }}">Sign Up</a>
