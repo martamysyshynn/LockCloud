@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="top-bar-content">
+    <div class="name-text">Cloud Storage Name</div>
+    <div class="buttons">
+        <a href="#" class="btn-language"><i class="fas fa-globe"></i></a>
+        <a href="{{ url_for('home') }}" class="btn-home">Home</a>
+    </div>
+</div>
+
+<section class="signin">
+    <div class="signin-form">
+        <h1>Sign In</h1>
+
+        <label>Full Name</label>
+        <input type="text" placeholder="Enter your name">
+
+        <label>Password</label>
+        <div class="signin-password">
+            <input type="password" placeholder="Enter password">
+        </div>
+
+        <a href="#" class="signin-forgot">Forgot password?</a>
+
+        <label class="signin-remember">
+            <input type="checkbox" checked>
+            Remember Me
+        </label>
+
+        <button class="signin-btn">Sign In</button>
+
+        <p class="signin-signup">
+            Don’t have an account?
+            <a href="{{ url_for('signup') }}">Sign Up</a>
+        </p>
+    </div>
+
+    <div class="signin-image">
+        <img src="/static/img/img4.png" alt="Cloud Security">
+    </div>
+</section>
+{% endblock %}

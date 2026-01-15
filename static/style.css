@@ -51,7 +51,7 @@ body {
 }
 
 .bottom-bar {
-    background-color: #020002; /* колір схожий на верхню смужку */
+    background-color: #020002; 
     height: 73px;
     width: 100%;
     position: fixed;
@@ -139,10 +139,9 @@ body {
 }
 
 .hero-content {
-    margin-top: -300px;   /* піднімає весь блок трохи вище */
+    margin-top: -300px;   
 }
 
-/* LEFT */
 .hero-content h1 {
     font-size: 64px;
     color: #D09EF2;
@@ -178,7 +177,6 @@ body {
     width: 100%;
 }
 
-/* FEATURES SECTION */
 .features {
     margin-top: -250px;
     display: flex;
@@ -188,11 +186,11 @@ body {
 }
 
 .feature-card {
-    background-color: #201F1F;     /* колір прямокутника */
-    border-radius: 20px;           /* заокруглення */
+    background-color: #201F1F;     
+    border-radius: 20px;         
     width: 320px;
     padding: 30px;
-    color: #DEBEF3;                /* фіолетовий контент */
+    color: #DEBEF3;                
     text-align: left;
 }
 
@@ -212,7 +210,6 @@ body {
     line-height: 1.5;
 }
 
-/* SECURITY SECTION */
 .security {
     margin-top: -20px;
     padding: 80px 40px;
@@ -316,7 +313,6 @@ body {
     color: #fff;
 }
 
-/* PASSWORD ROW */
 .signup-passwords {
     display: flex;
     gap: 30px;
@@ -326,7 +322,6 @@ body {
     width: 100%;
 }
 
-/* 2FA */
 .signup-2fa {
     display: flex;
     justify-content: space-between; 
@@ -340,7 +335,6 @@ body {
     height: 20px;
 }
 
-/* BUTTON */
 .signup-btn {
     width: 100%;
     padding: 14px;
@@ -356,7 +350,6 @@ body {
     opacity: 0.9;
 }
 
-/* LOGIN LINK */
 .signup-login {
     text-align: center;
     margin-top: 18px;
@@ -367,7 +360,6 @@ body {
     text-decoration: none;
 }
 
-/* IMAGE SIDE */
 .signup-image {
     text-align: center;
     color: #D09EF2;
@@ -377,4 +369,97 @@ body {
 .signup-image img {
     width: 600px;
     margin-bottom: 20px;
+}
+
+/* SIGN IN PAGE */
+.signin {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 120px 160px;
+    min-height: calc(100vh - 146px);
+    box-sizing: border-box;
+}
+
+.signin-form {
+    background-color: #020002;
+    padding: 45px;
+    border-radius: 35px;
+    width: 420px;
+}
+
+.signin-form h1 {
+    color: #D09EF2;
+    font-size: 52px;
+    margin-bottom: 30px;
+}
+
+.signin-form label {
+    font-size: 15px;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.signin-form input {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 18px;
+    border-radius: 18px;
+    border: none;
+    background-color: #2A2A2A;
+    color: #fff;
+    font-size: 14px;
+}
+
+.signin-password {
+    position: relative;
+}
+
+.signin-forgot {
+    display: block;
+    margin-bottom: 18px;
+    color: #D09EF2;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.signin-remember {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+}
+
+.signin-remember input {
+    width: 18px;
+    height: 18px;
+}
+
+.signin-btn {
+    width: 100%;
+    padding: 16px;
+    background-color: #D09EF2;
+    color: #020002;
+    border: none;
+    border-radius: 25px;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+.signin-btn:hover {
+    opacity: 0.9;
+}
+
+.signin-signup {
+    text-align: center;
+    margin-top: 18px;
+}
+
+.signin-signup a {
+    color: #D09EF2;
+    text-decoration: none;
+}
+
+.signin-image img {
+    width: 400px;
 }
