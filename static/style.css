@@ -463,3 +463,63 @@ body {
 .signin-image img {
     width: 400px;
 }
+
+/* TWO-FACTOR PAGE */
+.two-factor {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 120px 160px;
+    min-height: calc(100vh - 146px);
+    box-sizing: border-box;
+}
+
+.two-factor-form {
+    background-color: #020002;
+    padding: 45px;
+    border-radius: 35px;
+    width: 420px;
+    text-align: center;
+}
+
+.two-factor-form h1 {
+    color: #D09EF2;
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+.two-factor-form p {
+    color: #fff;
+    font-size: 16px;
+    margin-bottom: 25px;
+}
+
+.two-factor-form input[type="text"],
+.two-factor-form button {
+    width: 100%;
+    padding: 16px;        /* однаковий padding для висоти */
+    border-radius: 25px;  /* однакові закруглення */
+    font-size: 17px;      /* однаковий розмір тексту */
+    box-sizing: border-box; /* щоб padding не додавався до ширини */
+}
+
+.two-factor-form input[type="text"] {
+    margin-bottom: 20px;
+    border: none;
+    background-color: #2A2A2A;
+    color: #fff;
+    text-align: center;
+}
+
+.two-factor-form button {
+    background-color: #D09EF2;
+    color: #020002;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.two-factor-form button:hover {
+    opacity: 0.9;
+}
+
