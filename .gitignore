@@ -8,6 +8,7 @@ pyvenv.cfg
 
 .env
 .env.*
+config.py
 
 
 instance/
