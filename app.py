@@ -104,12 +104,46 @@ def two_factor():
             session['user_id'] = session.pop('temp_user_id')
             session.pop('otp')
             flash("2FA verification successful", "success")
-            return redirect(url_for('home'))
+            return redirect(url_for('profile'))
         else:
             flash("Invalid verification code", "danger")
 
     return render_template('two_factor.html')
 
+@app.route('/profile')
+def profile():
+    if 'user_id' not in session:
+        return redirect(url_for('signin'))
+
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM users WHERE id=%s", (session['user_id'],))
+    user = cursor.fetchone()
+    cursor.close()
+    connection.close()
+
+    return render_template('profile_page.html', user=user)
+
+@app.route('/profile/update-phone', methods=['POST'])
+def update_phone():
+    if 'user_id' not in session:
+        return redirect(url_for('signin'))
+    
+    phone = request.form.get('phone')
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "UPDATE users SET phone=%s WHERE id=%s",
+        (phone if phone else None, session['user_id'])
+    )
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    flash("Phone number updated", "success")
+    return redirect(url_for('profile'))
 
 if __name__ == '__main__':
     app.run(debug=True)

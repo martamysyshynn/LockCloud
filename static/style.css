@@ -522,4 +522,105 @@ body {
 .two-factor-form button:hover {
     opacity: 0.9;
 }
+/* ================= PROFILE PAGE ================= */
 
+.profile-layout {
+    display: flex;
+    padding: 40px 60px;
+    gap: 40px;
+    min-height: calc(100vh - 146px);
+}
+
+/* SIDEBAR */
+.profile-sidebar {
+    width: 260px;
+    color: #D09EF2;
+}
+
+.sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 18px;
+}
+
+.sidebar-user i {
+    font-size: 28px;
+}
+
+.sidebar-line {
+    height: 1px;
+    background-color: #D09EF2;
+    margin: 25px 0;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sidebar-nav a {
+    text-decoration: none;
+    color: #D09EF2;
+    font-size: 18px;
+    transition: 0.2s;
+}
+
+.sidebar-nav a:hover {
+    opacity: 0.8;
+}
+
+.sidebar-nav a.active {
+    font-weight: bold;
+}
+
+/* PROFILE CARD */
+.profile-card {
+    flex: 1;
+    background-color: #1B1A1B;
+    border-radius: 30px;
+    padding: 50px 70px;
+}
+
+.profile-card h1 {
+    color: #D09EF2;
+    font-size: 36px;
+    margin-bottom: 40px;
+}
+
+.profile-field {
+    margin-bottom: 25px;
+}
+
+.profile-field label {
+    display: block;
+    color: #D09EF2;
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+.profile-field input {
+    width: 100%;
+    background-color: #020002;
+    border: none;
+    border-radius: 18px;
+    padding: 16px 20px;
+    font-size: 16px;
+    color: #fff;
+}
+
+.profile-save-btn {
+    margin-top: 30px;
+    background-color: #D09EF2;
+    color: #020002;
+    border: none;
+    padding: 14px 50px;
+    border-radius: 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.profile-save-btn:hover {
+    opacity: 0.9;
+}

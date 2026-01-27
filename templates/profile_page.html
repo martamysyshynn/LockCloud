@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="top-bar-content">
+    <div class="name-text">NAME</div>
+    <div class="buttons">
+        <a href="#" class="btn-home">Storage</a>
+    </div>
+</div>
+
+<div class="profile-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="profile-sidebar">
+        <div class="sidebar-user">
+            <i class="fa-regular fa-user"></i>
+            <span>{{ user.full_name }}</span>
+        </div>
+
+        <div class="sidebar-line"></div>
+
+        <nav class="sidebar-nav">
+            <a href="/profile" class="active">Profile</a>
+            <a href="#">Notification</a>
+            <a href="#">Settings</a>
+        </nav>
+    </aside>
+
+    <!-- PROFILE -->
+    <section class="profile-card">
+        <h1>Profile</h1>
+
+        <form method="post" action="{{ url_for('update_phone') }}">
+
+            <div class="profile-field">
+                <label>Name</label>
+                <input type="text" value="{{ user.full_name.split(' ')[0] }}" disabled>
+            </div>
+
+            <div class="profile-field">
+                <label>Surname</label>
+                <input type="text"
+                       value="{{ user.full_name.split(' ')[1] if user.full_name.split(' ')|length > 1 else '' }}"
+                       disabled>
+            </div>
+
+            <div class="profile-field">
+                <label>Email</label>
+                <input type="email" value="{{ user.email }}" disabled>
+            </div>
+
+            <div class="profile-field">
+                <label>Phone Number</label>
+                <input type="text"
+                       name="phone"
+                       value="{{ user.phone if user.phone else '' }}"
+                       placeholder="Add phone number">
+            </div>
+
+            <button class="profile-save-btn" type="submit">Save</button>
+
+        </form>
+    </section>
+
+</div>
+
+{% endblock %}
