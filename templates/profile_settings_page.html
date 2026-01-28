@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="top-bar-content">
+    <div class="name-text">NAME</div>
+    <div class="buttons">
+        <a href="#" class="btn-home">Storage</a>
+    </div>
+</div>
+
+<div class="profile-layout">
+
+    <!-- Sidebar -->
+    <aside class="profile-sidebar">
+        <div class="sidebar-user">
+            <i class="fa-regular fa-user"></i>
+            <span>{{ user.full_name }}</span>
+        </div>
+
+        <div class="sidebar-line"></div>
+
+        <nav class="sidebar-nav">
+            <a href="/profile">Profile</a>
+            <a href="/notifications">Notification</a>
+            <a href="/settings" class="active">Settings</a>
+        </nav>
+    </aside>
+
+    <section class="settings-content">
+        <h1>Settings</h1>
+        <h2>Security</h2>
+
+        <form method="POST" action="/settings/change-password" class="settings-row">
+            <input
+                type="password"
+                name="current_password"
+                placeholder="Current password"
+                required
+            >
+
+            <input
+                type="password"
+                name="new_password"
+                placeholder="New password"
+                required
+            >
+
+            <input
+                type="password"
+                name="confirm_password"
+                placeholder="Confirm new password"
+                required
+            >
+
+            <button type="submit" class="settings-btn">
+                Change Password
+            </button>
+        </form>
+
+        <form method="POST" action="/settings/change-email" class="settings-row">
+            <input
+                type="email"
+                name="new_email"
+                placeholder="New email address"
+                required
+            >
+
+            <button type="submit" class="settings-btn">
+                Change Email
+            </button>
+        </form>
+
+    </section>
+
+</div>
+
+{% endblock %}

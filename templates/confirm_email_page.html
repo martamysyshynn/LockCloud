@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="top-bar-content">
+    <div class="name-text">NAME</div>
+</div>
+
+<div class="two-factor">
+    <form method="POST" class="two-factor-form">
+        <h1>Confirm Email</h1>
+
+        <p>
+            We’ve sent a confirmation code to your new email address.
+            Please enter it below to confirm the change.
+        </p>
+
+        <input
+            type="text"
+            name="otp"
+            placeholder="Enter confirmation code"
+            required
+        >
+
+        <button type="submit">
+            Confirm Email
+        </button>
+    </form>
+</div>
+
+{% endblock %}

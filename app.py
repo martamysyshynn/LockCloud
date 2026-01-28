@@ -145,6 +145,124 @@ def update_phone():
     flash("Phone number updated", "success")
     return redirect(url_for('profile'))
 
+@app.route('/notifications')
+def notifications():
+    if 'user_id' not in session:
+        return redirect(url_for('signin'))
+    
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM users WHERE id=%s", (session['user_id'],))
+    user = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    
+    return render_template('profile_notifications_page.html', user=user)
+
+@app.route('/settings')
+def settings():
+    if 'user_id' not in session:
+        return redirect(url_for('signin'))
+    
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM users WHERE id=%s", (session['user_id'],))
+    user = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    
+    return render_template('profile_settings_page.html', user=user)
+
+@app.route('/settings/change-password', methods=['POST'])
+def change_password():
+    if 'user_id' not in session:
+        return redirect(url_for('signin'))
+    
+    current_password = request.form['current_password']
+    new_password = request.form['new_password']
+    confirm_password = request.form['confirm_password']
+
+    if new_password != confirm_password:
+        flash("New passwords do not match", "danger")
+        return redirect(url_for('settings'))
+    
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT password, email FROM users WHERE id=%s", (session['user_id'],))
+    user = cursor.fetchone()
+
+    if not check_password_hash(user['password'], current_password):
+        flash("Current password is incorrect", "danger")
+        cursor.close()
+        connection.close()
+        return redirect(url_for('settings'))
+
+    hashed_password = generate_password_hash(new_password)
+
+    cursor.execute("UPDATE users SET password=%s WHERE id=%s", (hashed_password, session['user_id']))
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    msg = Message("Password changed", recipients=[user['email']])
+    msg.body = "Your password was successfully changed. If this wasn't you, please contact support immediately."
+    mail.send(msg)
+
+    flash("Password successfully changed", "success")
+    return redirect(url_for('settings')) 
+
+@app.route('/settings/change-email', methods=['POST'])
+def change_email():
+    if 'user_id' not in session:
+        return redirect(url_for('signin'))
+    
+    new_email = request.form['new_email']
+    otp = generate_otp()
+
+    session['email_change_otp'] = otp
+    session['new_email'] = new_email
+
+    msg = Message(
+        "Confirm your new email",
+        recipients=[new_email]
+    )
+    msg.body = f"Your confirmation code is: {otp}"
+    mail.send(msg)
+
+    flash("Confirmation code sent to new email", "info")
+    return redirect(url_for('confirm_email'))
+
+@app.route('/settings/confirm-email', methods=['GET', 'POST'])
+def confirm_email():
+    if 'user_id' not in session:
+        return redirect(url_for('signin'))
+
+    if request.method == 'POST':
+        entered_otp = request.form['otp']
+
+        if entered_otp == session.get('email_change_otp'):
+            connection = get_db_connection()
+            cursor = connection.cursor()
+            cursor.execute(
+                "UPDATE users SET email=%s WHERE id=%s",
+                (session['new_email'], session['user_id'])
+            )
+            connection.commit()
+            cursor.close()
+            connection.close()
+
+            session.pop('email_change_otp')
+            session.pop('new_email')
+
+            flash("Email successfully updated", "success")
+            return redirect(url_for('settings'))
+
+        else:
+            flash("Invalid confirmation code", "danger")
+
+    return render_template('confirm_email_page.html')
+
+
 if __name__ == '__main__':
     app.run(debug=True)
 
