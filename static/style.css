@@ -12,7 +12,6 @@ body {
     color: #fff;
 }
 
-/* Верхня смужка */
 .top-bar {
     background-color: #020002; 
     height: 73px;               
@@ -23,7 +22,6 @@ body {
     z-index: 1000;              
 }
 
-/* Нижня смужка */
 .bottom-bar {
     background-color: #020002; 
     height: 73px;               
@@ -34,7 +32,6 @@ body {
     z-index: 500;              
 }
 
-/* Контент у верхній смужці */
 .top-bar-content {
     position: fixed;      
     top: 0;
@@ -497,10 +494,10 @@ body {
 .two-factor-form input[type="text"],
 .two-factor-form button {
     width: 100%;
-    padding: 16px;        /* однаковий padding для висоти */
-    border-radius: 25px;  /* однакові закруглення */
-    font-size: 17px;      /* однаковий розмір тексту */
-    box-sizing: border-box; /* щоб padding не додавався до ширини */
+    padding: 16px;        
+    border-radius: 25px;  
+    font-size: 17px;      
+    box-sizing: border-box; 
 }
 
 .two-factor-form input[type="text"] {
@@ -522,8 +519,8 @@ body {
 .two-factor-form button:hover {
     opacity: 0.9;
 }
-/* ================= PROFILE PAGE ================= */
 
+/* PROFILE PAGE  */
 .profile-layout {
     display: flex;
     padding: 40px 60px;
@@ -531,7 +528,6 @@ body {
     min-height: calc(100vh - 146px);
 }
 
-/* SIDEBAR */
 .profile-sidebar {
     width: 260px;
     color: #D09EF2;
@@ -575,7 +571,6 @@ body {
     font-weight: bold;
 }
 
-/* PROFILE CARD */
 .profile-card {
     flex: 1;
     background-color: #1B1A1B;
@@ -662,8 +657,8 @@ body {
 .notification-card i {
     font-size: 22px;
 }
-/* SETTINGS PAGE */
 
+/* SETTINGS PAGE */
 .settings-content {
     flex: 1;
     background: linear-gradient(180deg, #1A1A1A, #0F0F0F);
@@ -684,7 +679,6 @@ body {
     color: #C9A6E8;
 }
 
-/* ROW (form) */
 .settings-row {
     display: flex;
     align-items: center;
@@ -692,7 +686,6 @@ body {
     margin-bottom: 25px;
 }
 
-/* INPUTS */
 .settings-row input {
     flex: 1;
     padding: 14px 18px;
@@ -707,9 +700,8 @@ body {
     color: #999;
 }
 
-/* BUTTONS */
 .settings-btn {
-    min-width: 200px;              /* 🔥 однаковий розмір */
+    min-width: 200px;             
     height: 48px;
     background-color: #D09EF2;
     color: #020002;
@@ -725,7 +717,95 @@ body {
     opacity: 0.9;
 }
 
-/* PASSWORD FORM – трохи вертикальніше */
 .settings-row input[type="password"] {
     max-width: 220px;
+}
+
+/* FORGOT / RESET PASSWORD */
+.forgot-password {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 146px); 
+    padding: 120px 160px 60px; 
+    box-sizing: border-box;
+}
+
+.forgot-password-form {
+    background-color: #020002;      
+    padding: 50px 40px;           
+    border-radius: 35px;            
+    width: 420px;
+    max-width: 100%;
+    box-shadow: 0 0 20px rgba(208, 158, 242, 0.3);
+    text-align: center;
+}
+
+.forgot-password-form h1 {
+    color: #D09EF2;            
+    font-size: 44px;
+    margin-bottom: 15px;
+}
+
+.forgot-password-form p {
+    color: #fff;                    
+    font-size: 16px;
+    margin-bottom: 30px;
+}
+
+.forgot-password-form label {
+    display: block;
+    text-align: left;
+    color: #D09EF2;
+    font-size: 15px;
+    margin-bottom: 6px;
+}
+
+.forgot-password-form input {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 20px;
+    border-radius: 18px;
+    border: none;
+    background-color: #2A2A2A;      
+    color: #fff;
+    font-size: 15px;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.forgot-password-form input:focus {
+    border: 1px solid #D09EF2;
+    box-shadow: 0 0 8px rgba(208, 158, 242, 0.4);
+}
+
+.forgot-btn {
+    width: 100%;
+    padding: 16px;
+    background-color: #D09EF2;    
+    color: #020002;
+    font-size: 17px;
+    font-weight: bold;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.forgot-btn:hover {
+    background-color: #c084fc;      
+}
+
+.back-to-login {
+    display: block;
+    margin-top: 18px;
+    text-decoration: none;
+    color: #D09EF2;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.back-to-login:hover {
+    opacity: 0.8;
 }

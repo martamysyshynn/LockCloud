@@ -65,6 +65,9 @@ def signup():
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
     if request.method == 'POST':
+        session.pop('otp', None)
+        session.pop('temp_user_id', None)
+
         email = request.form['email']
         password = request.form['password']
 
@@ -78,13 +81,14 @@ def signin():
         if user and check_password_hash(user['password'], password):
 
             if user['two_factor_enabled']:
-                otp = generate_otp()
-                session['temp_user_id'] = user['id'] 
-                session['otp'] = otp
+                if 'otp' not in session:
+                    otp = generate_otp()
+                    session['temp_user_id'] = user['id'] 
+                    session['otp'] = otp
 
-                msg = Message('Your 2FA Code', recipients=[user['email']])
-                msg.body = f"Your verification code is: {otp}"
-                mail.send(msg)
+                    msg = Message('Your 2FA Code', recipients=[user['email']])
+                    msg.body = f"Your verification code is: {otp}"
+                    mail.send(msg)
 
                 return redirect(url_for('two_factor'))
             
@@ -98,6 +102,9 @@ def signin():
 
 @app.route('/two-factor', methods=['GET', 'POST'])
 def two_factor():
+    if 'temp_user_id' not in session:
+        return redirect(url_for('signin'))
+    
     if request.method == 'POST':
         entered_otp = request.form['otp']
         if entered_otp == session.get('otp'):
@@ -226,6 +233,7 @@ def change_email():
         "Confirm your new email",
         recipients=[new_email]
     )
+
     msg.body = f"Your confirmation code is: {otp}"
     mail.send(msg)
 
@@ -262,9 +270,71 @@ def confirm_email():
 
     return render_template('confirm_email_page.html')
 
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT id, email FROM users WHERE email=%s", (email,))
+        user = cursor.fetchone()
+
+        cursor.close()
+        connection.close()
+
+        if user:
+            otp = generate_otp()
+            session['reset_otp'] = otp
+            session['reset_user_id'] = user['id']
+
+            msg = Message("Password reset code", recipients=[user['email']])
+            msg.body = f"Your password reset code is: {otp}"
+            mail.send(msg)
+
+        flash("If this email exists, a reset code was sent", "info")
+        return redirect(url_for('reset_password'))
+
+    return render_template('forgot_password.html')
+
+@app.route('/reset-password', methods=['GET', 'POST'])
+def reset_password():
+    if 'reset_user_id' not in session:
+        return redirect(url_for('forgot_password'))
+
+    if request.method == 'POST':
+        otp = request.form['otp']
+        new_password = request.form['new_password']
+        confirm_password = request.form['confirm_password']
+
+        if new_password != confirm_password:
+            flash("Passwords do not match", "danger")
+            return redirect(url_for('reset_password'))
+
+        if otp != session.get('reset_otp'):
+            flash("Invalid reset code", "danger")
+            return redirect(url_for('reset_password'))
+
+        hashed_password = generate_password_hash(new_password)
+
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute("UPDATE users SET password=%s WHERE id=%s", (hashed_password, session['reset_user_id']))
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+        session.pop('reset_otp')
+        session.pop('reset_user_id')
+
+        flash("Password successfully reset. You can sign in now.", "success")
+        return redirect(url_for('signin'))
+
+    return render_template('reset_password.html')
+
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
 
     
 
