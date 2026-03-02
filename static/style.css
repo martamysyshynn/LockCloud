@@ -809,3 +809,232 @@ body {
 .back-to-login:hover {
     opacity: 0.8;
 }
+
+/* ===== STORAGE PAGE ===== */
+
+.storage-layout {
+    display: flex;
+    min-height: calc(100vh - 146px);
+    color: #fff;
+}
+
+
+.name-text {
+    color: #D09EF2;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.search-box {
+    width: 950px;
+    margin-left: auto;
+    background: #2A2A2A;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+}
+
+
+.search-box i {
+    color: #777;
+    margin-right: 10px;
+}
+
+.search-box input {
+    background: none;
+    border: none;
+    color: #fff;
+    width: 100%;
+    outline: none;
+}
+
+.top-icons i {
+    color: #D09EF2;
+    font-size: 20px;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+/* SIDEBAR */
+.storage-sidebar {
+    width: 260px;
+    padding: 30px;
+    padding-top: 100px; 
+    border-right: 1px solid #2A2A2A;
+    box-sizing: border-box;
+}
+
+.create-btn {
+    width: 90%;
+    background: #D09EF2;
+    color: #020002;
+    border: none;
+    padding: 13px;
+    border-radius: 28px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    margin-bottom: 30px;
+}
+
+.storage-nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    color: #D09EF2;
+    text-decoration: none;
+    font-size: 17px;
+}
+
+.storage-nav a.active {
+    font-weight: bold;
+}
+
+.storage-usage {
+    margin-top: 50px;
+    font-size: 14px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: #2A2A2A;
+    border-radius: 10px;
+    margin-top: 8px;
+}
+
+.progress {
+    width: 40%;
+    height: 100%;
+    background: #D09EF2;
+    border-radius: 10px;
+}
+
+/* CONTENT */
+.storage-content {
+    flex: 1;
+    padding: 40px;
+}
+
+.storage-content h1 {
+    font-size: 42px;
+    color: #D09EF2;
+    margin-bottom: 30px;
+}
+
+.file-list {
+    border-top: 1px solid #2A2A2A;
+}
+
+.file-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 18px 0;
+    border-bottom: 1px solid #2A2A2A;
+    font-size: 18px;
+}
+
+.file-row i {
+    color: #D09EF2;
+    font-size: 22px;
+}
+.create-form,
+.upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.create-form input,
+.upload-form input[type="file"] {
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: none;
+    background: #2A2A2A;
+    color: #fff;
+    font-size: 14px;
+}
+
+.create-form button,
+.upload-form button {
+    padding: 12px;
+    border-radius: 22px;
+    border: none;
+    background: #D09EF2;
+    color: #020002;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.create-form button:hover,
+.upload-form button:hover {
+    opacity: 0.9;
+}
+.create-panel {
+    display: none;
+    margin-bottom: 20px;
+}
+
+#create-toggle:checked ~ .create-panel {
+    display: block;
+}
+
+.cancel-btn {
+    display: block;
+    margin-top: 10px;
+    text-align: center;
+    color: #D09EF2;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.file-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    text-decoration: none;   /* прибрати підкреслення */
+    color: black;            /* зробити чорним */
+}
+
+.file-row:visited {
+    color: #D09EF2;            /* щоб після кліку не ставало фіолетовим */
+}
+
+.file-row:hover {
+    background-color: #D09EF2;
+    border-radius: 8px;
+}
+
+.file-row:active {
+    color: #D09EF2;
+}
+
+.file-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    text-decoration: none;   /* прибрати підкреслення */
+    color: #D09EF2;            /* зробити чорним */
+}
+
+.file-row:visited {
+    color: #D09EF2;            /* щоб після кліку не ставало фіолетовим */
+}
+
+.file-row:hover {
+    background-color: #2A2A2A;
+    border-radius: 8px;
+}
+
+.file-row:active {
+    color: #D09EF2;
+}

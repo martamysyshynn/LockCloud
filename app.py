@@ -1,14 +1,18 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file
 import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
 from config import Config
 from flask_mail import Mail, Message
 import random
+import os
+from werkzeug.utils import secure_filename
 
+UPLOAD_FOLDER = 'uploads'
 
 app = Flask(__name__)
 app.config.from_object(Config)
 mail = Mail(app)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def generate_otp():
     return str(random.randint(100000, 999999))
@@ -20,6 +24,11 @@ def get_db_connection():
         password = app.config['MYSQL_PASSWORD'],
         database = app.config['MYSQL_DB']
     )
+
+def get_user_upload_folder(user_id):
+    path = os.path.join(app.config['UPLOAD_FOLDER'], str(user_id))
+    os.makedirs(path, exist_ok=True)
+    return path
 
 @app.route('/')
 def home():
@@ -60,7 +69,6 @@ def signup():
             connection.close()
 
     return render_template('sign_up_page.html')
-
 
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
@@ -331,6 +339,146 @@ def reset_password():
         return redirect(url_for('signin'))
 
     return render_template('reset_password.html')
+
+@app.route('/storage/create-folder', methods=['POST'])
+def create_folder():
+    if 'user_id' not in session:
+        return redirect(url_for('signin'))
+    
+    folder_name = request.form['folder_name']
+    parent_id = request.form.get('parent_id')
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "INSERT INTO folders (name, parent_id, user_id) VALUES (%s, %s, %s)",
+        (folder_name, parent_id, session['user_id'])
+    )
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    flash("Folder created", "success")
+    return redirect(url_for('storage'))
+
+@app.route('/storage/upload', methods=['POST'])
+def upload_file():
+    if 'user_id' not in session:
+        return redirect(url_for('signin'))
+
+    file = request.files['file']
+    folder_id = request.form.get('folder_id')
+
+    if file.filename == '':
+        flash("No file selected", "danger")
+        return redirect(url_for('stoarge'))
+
+    filename = secure_filename(file.filename)
+    stored_name = f"{random.randint(100000,999999)}_{filename}"
+
+    user_folder = get_user_upload_folder(session['user_id'])
+    file_path = os.path.join(user_folder, stored_name)
+
+    file.save(file_path)
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        """
+        INSERT INTO files (filename, stored_name, size, user_id, folder_id)
+        VALUES (%s, %s, %s, %s, %s)
+        """,
+        (
+            filename,
+            stored_name,
+            os.path.getsize(file_path),
+            session['user_id'],
+            folder_id
+        )
+    )
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    flash("File uploaded", "success")
+    return redirect(url_for('storage'))
+
+@app.route('/storage')
+def storage():
+    if 'user_id' not in session:
+        return redirect(url_for('signin'))
+
+    folder_id = request.args.get('folder_id')
+
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    if folder_id:
+        cursor.execute(
+            "SELECT * FROM folders WHERE user_id=%s AND parent_id=%s",
+            (session['user_id'], folder_id)
+        )
+        folders = cursor.fetchall()
+
+        cursor.execute(
+            "SELECT * FROM files WHERE user_id=%s AND folder_id=%s",
+            (session['user_id'], folder_id)
+        )
+        files = cursor.fetchall()
+    else:
+        cursor.execute(
+            "SELECT * FROM folders WHERE user_id=%s AND parent_id IS NULL",
+            (session['user_id'],)
+        )
+        folders = cursor.fetchall()
+
+        cursor.execute(
+            "SELECT * FROM files WHERE user_id=%s AND folder_id IS NULL",
+            (session['user_id'],)
+        )
+        files = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+
+    return render_template(
+        'storage_page.html',
+        folders=folders,
+        files=files
+    )
+
+@app.route('/storage/file/<int:file_id>')
+def open_file(file_id):
+    if 'user_id' not in session:
+        return redirect(url_for('signin'))
+
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    cursor.execute(
+        "SELECT * FROM files WHERE id=%s AND user_id=%s",
+        (file_id, session['user_id'])
+    )
+    file = cursor.fetchone()
+
+    cursor.close()
+    connection.close()
+
+    if not file:
+        flash("File not found", "danger")
+        return redirect(url_for('storage'))
+
+    file_path = os.path.join(
+        app.config['UPLOAD_FOLDER'],
+        str(session['user_id']),
+        file['stored_name']
+    )
+
+    return send_file(file_path)
 
 
 if __name__ == '__main__':

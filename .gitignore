@@ -20,3 +20,5 @@ instance/
 .idea/
 
 *.log
+
+uploads/

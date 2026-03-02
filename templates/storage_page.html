@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="top-bar-content">
+    <div class="name-text">{{ session.user_name }}</div>
+
+    <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Search for files...">
+    </div>
+
+    <div class="top-icons">
+        <i class="fa-solid fa-globe"></i>
+        <a href="/profile">
+            <i class="fa-regular fa-user"></i>
+        </a>
+    </div>
+</div>
+
+<div class="storage-layout">
+
+    <aside class="storage-sidebar">
+
+        <input type="checkbox" id="create-toggle" hidden>
+
+        <label for="create-toggle" class="create-btn">
+            <i class="fa-solid fa-plus"></i>
+            Create
+        </label>
+
+        <div class="create-panel">
+
+            <form action="/storage/create-folder" method="POST" class="create-form">
+                <input
+                    type="text"
+                    name="folder_name"
+                    placeholder="Folder name"
+                    required
+                >
+                <button type="submit">
+                    <i class="fa-solid fa-folder-plus"></i>
+                    Create folder
+                </button>
+            </form>
+
+            <form
+                action="/storage/upload"
+                method="POST"
+                enctype="multipart/form-data"
+                class="upload-form"
+            >
+                <input type="file" name="file" required>
+                <button type="submit">
+                    <i class="fa-solid fa-upload"></i>
+                    Upload file
+                </button>
+            </form>
+
+            <label for="create-toggle" class="cancel-btn">
+                Cancel
+            </label>
+        </div>
+
+        <nav class="storage-nav">
+            <a href="/storage" class="active">
+                <i class="fa-regular fa-folder"></i>
+                My Drive
+            </a>
+            <a href="#">
+                <i class="fa-solid fa-share-nodes"></i>
+                Shared
+            </a>
+            <a href="#">
+                <i class="fa-regular fa-trash-can"></i>
+                Trash
+            </a>
+        </nav>
+
+        <div class="storage-usage">
+            <span>Storage usage</span>
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
+        </div>
+    </aside>
+
+    <section class="storage-content">
+        <h1>My Drive</h1>
+
+        <div class="file-list">
+
+            {% if folders %}
+                {% for folder in folders %}
+                <a href="/storage?folder_id={{ folder.id }}" class="file-row">
+                    <i class="fa-regular fa-folder"></i>
+                    <span>{{ folder.name }}</span>
+                </a>
+                {% endfor %}
+            {% else %}
+                <p class="empty-text">No folders</p>
+            {% endif %}
+
+            {% if files %}
+                {% for file in files %}
+                <a href="/storage/file/{{ file.id }}" class="file-row">
+                    <i class="fa-regular fa-file"></i>
+                    <span>{{ file.filename }}</span>
+                </a>
+                {% endfor %}
+            {% else %}
+                <p class="empty-text">No files</p>
+            {% endif %}
+
+        </div>
+    </section>
+
+</div>
+
+{% endblock %}
