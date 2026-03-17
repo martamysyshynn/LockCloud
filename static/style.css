@@ -895,26 +895,6 @@ body {
     font-weight: bold;
 }
 
-.storage-usage {
-    margin-top: 50px;
-    font-size: 14px;
-}
-
-.progress-bar {
-    width: 100%;
-    height: 6px;
-    background: #2A2A2A;
-    border-radius: 10px;
-    margin-top: 8px;
-}
-
-.progress {
-    width: 40%;
-    height: 100%;
-    background: #D09EF2;
-    border-radius: 10px;
-}
-
 /* CONTENT */
 .storage-content {
     flex: 1;
@@ -1000,12 +980,12 @@ body {
     align-items: center;
     gap: 10px;
 
-    text-decoration: none;   /* прибрати підкреслення */
-    color: black;            /* зробити чорним */
+    text-decoration: none;   
+    color: black;            
 }
 
 .file-row:visited {
-    color: #D09EF2;            /* щоб після кліку не ставало фіолетовим */
+    color: #D09EF2;           
 }
 
 .file-row:hover {
@@ -1022,12 +1002,12 @@ body {
     align-items: center;
     gap: 10px;
 
-    text-decoration: none;   /* прибрати підкреслення */
-    color: #D09EF2;            /* зробити чорним */
+    text-decoration: none;  
+    color: #D09EF2;           
 }
 
 .file-row:visited {
-    color: #D09EF2;            /* щоб після кліку не ставало фіолетовим */
+    color: #D09EF2;       
 }
 
 .file-row:hover {
@@ -1037,4 +1017,180 @@ body {
 
 .file-row:active {
     color: #D09EF2;
+}
+
+/* DELETE BUTTON IN FILE ROW */
+
+.file-row {
+    justify-content: space-between;
+}
+
+.delete-form {
+    margin: 0;
+}
+
+.delete-btn {
+    padding: 6px 12px;      
+    border-radius: 8px;
+    border: none;
+    color: #D09EF2;
+    font-size: 18px;
+    background: #2A2A2A;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.delete-btn:hover {
+    color: #D09EF2;
+    transform: scale(1.1);
+}
+
+.file-row a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    text-decoration: none;   
+    color: #D09EF2;          
+}
+
+.file-row a:visited {
+    color: #D09EF2;          
+}
+
+.file-row a:hover {
+    color: #fff;             
+}
+
+/* POPUP */
+.share-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    background: rgba(0,0,0,0.6);
+
+    display: none; 
+    justify-content: center;
+    align-items: center;
+
+    z-index: 2000;
+}
+
+.share-popup:target {
+    display: flex; 
+}
+
+.share-box {
+    background: #1B1A1B;
+    padding: 35px 40px;
+    border-radius: 20px;
+    width: 320px;
+    text-align: center;
+}
+
+.share-box h2 {
+    color: #D09EF2;
+    margin-bottom: 15px;
+}
+
+.share-box p {
+    margin-bottom: 20px;
+    color: #fff;
+}
+
+.share-box input,
+.share-box button {
+    width: 100%;          
+    padding: 12px;
+    border-radius: 20px;   
+    border: none;
+    background: #2A2A2A;   
+    color: #fff;
+    margin-bottom: 15px;   
+    box-sizing: border-box; 
+}
+
+.share-box button {
+    background: #D09EF2;   
+    color: #020002;
+}
+
+.close-share {
+    display: inline-block;
+    margin-top: 10px;
+    background: transparent;
+    color: #D09EF2;
+    text-decoration: none;
+    cursor: pointer;
+}
+.file-actions {
+    display: flex;           
+    gap: 10px;              
+    align-items: center;     
+}
+
+.file-actions .share-btn,
+.file-actions button.delete-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;       
+    border-radius: 8px;
+    border: none;
+    background: #2A2A2A;     
+    color: #D09EF2;          
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.file-actions .share-btn i,
+.file-actions button.delete-btn i {
+    pointer-events: none; 
+}
+/* ADMIN PAGE */
+
+.admin-title{
+    color:#D09EF2;
+    font-size:42px;
+    margin:40px 60px;
+}
+
+.users-box{
+    background:#1B1A1B;
+    border-radius:25px;
+    padding:40px;
+    margin:0 60px;
+}
+
+.users-box h2{
+    color:#D09EF2;
+    margin-bottom:25px;
+    font-size:24px;
+}
+
+.user-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 0;
+    border-bottom:1px solid #2A2A2A;
+    font-size:17px;
+}
+
+.user-row:last-child{
+    border-bottom:none;
+}
+
+.user-name{
+    color:#fff;
+    font-weight:600;
+}
+
+.user-email{
+    color:#999;
+    font-size:15px;
 }

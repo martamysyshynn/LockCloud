@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="top-bar-content">
+    <div class="name-text">{{ session.user_name }}</div>
+
+    <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Search in trash...">
+    </div>
+
+    <div class="top-icons">
+        <a href="/profile">
+            <i class="fa-regular fa-user"></i>
+        </a>
+    </div>
+</div>
+
+<div class="storage-layout">
+
+<aside class="storage-sidebar">
+    <nav class="storage-nav">
+        <a href="/storage" class="active">
+            <i class="fa-regular fa-folder"></i>
+            My Drive
+        </a>
+        <a href="/shared">
+            <i class="fa-solid fa-share-nodes"></i>
+            Shared
+        </a>
+        <a href="/trash">
+            <i class="fa-regular fa-trash-can"></i>
+            Trash
+        </a>
+    </nav>
+</aside>
+
+<section class="storage-content">
+<h1>Trash</h1>
+
+<div class="file-list">
+
+{% for folder in folders %}
+<div class="file-row">
+    <i class="fa-regular fa-folder"></i>
+    <span>{{ folder.name }}</span>
+
+    <div style="display:flex; gap:10px;">
+        <form action="/restore-folder/{{ folder.id }}" method="POST">
+            <button class="delete-btn">
+                <i class="fa-solid fa-rotate-left"></i>
+            </button>
+        </form>
+
+        <form action="/delete-folder-permanently/{{ folder.id }}" method="POST">
+            <button class="delete-btn">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </form>
+    </div>
+</div>
+{% endfor %}
+
+{% for file in files %}
+<div class="file-row">
+    <a href="/storage/file/{{ file.id }}">
+        <i class="fa-regular fa-file"></i>
+        <span>{{ file.filename }}</span>
+    </a>
+
+    <div style="display:flex; gap:10px;">
+        <form action="/restore-file/{{ file.id }}" method="POST">
+            <button class="delete-btn">
+                <i class="fa-solid fa-rotate-left"></i>
+            </button>
+        </form>
+
+        <form action="/delete-file-permanently/{{ file.id }}" method="POST">
+            <button class="delete-btn">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </form>
+    </div>
+</div>
+{% endfor %}
+
+</div>
+</section>
+</div>
+
+{% endblock %}

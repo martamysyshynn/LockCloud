@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="top-bar-content">
+    <div class="name-text">{{ session.user_name }}</div>
+
+    <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Search for files...">
+    </div>
+
+    <div class="top-icons">
+        <i class="fa-solid fa-globe"></i>
+        <a href="/profile">
+            <i class="fa-regular fa-user"></i>
+        </a>
+    </div>
+</div>
+
+<div class="storage-layout">
+    
+
+    <aside class="storage-sidebar">
+
+        <nav class="storage-nav">
+            <a href="/storage">
+                <i class="fa-regular fa-folder"></i>
+                My Drive
+            </a>
+
+            <a href="/shared" class="active">
+                <i class="fa-solid fa-share-nodes"></i>
+                Shared
+            </a>
+
+            <a href="/trash">
+                <i class="fa-regular fa-trash-can"></i>
+                Trash
+            </a>
+        </nav>
+
+    </aside>
+
+    <section class="storage-content">
+        <h1>Shared with me</h1>
+
+        <div class="file-list">
+
+            {% for file in files %}
+                <div class="file-row">
+                    <a href="/storage/file/{{ file.id }}">
+                        <i class="fa-regular fa-file"></i>
+                        <span>{{ file.filename }}</span>
+                    </a>
+                </div>
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

@@ -5,10 +5,15 @@
 <div class="top-bar-content">
     <div class="name-text">{{ session.user_name }}</div>
 
-    <div class="search-box">
+    <form method="GET" action="/storage" class="search-box">
         <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" placeholder="Search for files...">
-    </div>
+        <input 
+            type="text" 
+            name="search"
+            placeholder="Search for files..."
+            value="{{ request.args.get('search', '') }}"
+        >
+    </form>
 
     <div class="top-icons">
         <i class="fa-solid fa-globe"></i>
@@ -31,7 +36,8 @@
 
         <div class="create-panel">
 
-            <form action="/storage/create-folder" method="POST" class="create-form">
+           <form action="/storage/create-folder" method="POST" class="create-form">
+            <input type="hidden" name="parent_id" value="{{ current_folder_id }}">
                 <input
                     type="text"
                     name="folder_name"
@@ -50,6 +56,7 @@
                 enctype="multipart/form-data"
                 class="upload-form"
             >
+                <input type="hidden" name="folder_id" value="{{ current_folder_id }}">
                 <input type="file" name="file" required>
                 <button type="submit">
                     <i class="fa-solid fa-upload"></i>
@@ -67,22 +74,16 @@
                 <i class="fa-regular fa-folder"></i>
                 My Drive
             </a>
-            <a href="#">
+            <a href="/shared">
                 <i class="fa-solid fa-share-nodes"></i>
                 Shared
             </a>
-            <a href="#">
+            <a href="/trash">
                 <i class="fa-regular fa-trash-can"></i>
                 Trash
             </a>
         </nav>
 
-        <div class="storage-usage">
-            <span>Storage usage</span>
-            <div class="progress-bar">
-                <div class="progress"></div>
-            </div>
-        </div>
     </aside>
 
     <section class="storage-content">
@@ -90,31 +91,66 @@
 
         <div class="file-list">
 
-            {% if folders %}
-                {% for folder in folders %}
-                <a href="/storage?folder_id={{ folder.id }}" class="file-row">
-                    <i class="fa-regular fa-folder"></i>
-                    <span>{{ folder.name }}</span>
-                </a>
-                {% endfor %}
-            {% else %}
-                <p class="empty-text">No folders</p>
-            {% endif %}
+            {% for folder in folders %}
+                <div class="file-row">
+                    <a href="{{ url_for('storage', folder_id=folder.id) }}">
+                        <i class="fa-regular fa-folder"></i>
+                        <span>{{ folder.name }}</span>
+                    </a>
 
-            {% if files %}
-                {% for file in files %}
-                <a href="/storage/file/{{ file.id }}" class="file-row">
+                    <form 
+                        action="/storage/delete-folder/{{ folder.id }}" 
+                        method="POST"
+                        class="delete-form"
+                    >
+                        <button type="submit" class="delete-btn">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>
+                    </form>
+                </div>
+            {% endfor %}
+
+            {% for file in files %}
+            <div class="file-row">
+
+                <a href="/storage/file/{{ file.id }}">
                     <i class="fa-regular fa-file"></i>
                     <span>{{ file.filename }}</span>
                 </a>
-                {% endfor %}
-            {% else %}
-                <p class="empty-text">No files</p>
-            {% endif %}
+
+                <div class="file-actions">
+                    <a href="#share-{{ file.id }}" class="share-btn">
+                        <i class="fa-solid fa-share-nodes"></i>
+                    </a>
+
+                    <form action="/delete-file-permanently/{{ file.id }}" method="POST">
+                        <button class="delete-btn">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+
+            <div id="share-{{ file.id }}" class="share-popup">
+                <div class="share-box">
+                    <h2>Share file</h2>
+                    <p>{{ file.filename }}</p>
+
+                    <form action="/storage/share-file/{{ file.id }}" method="POST">
+                        <input type="email" name="email" placeholder="Enter user email" required>
+                        <button type="submit">Share</button>
+                    </form>
+
+                    <a href="#" class="close-share">Cancel</a>
+                </div>
+            </div>
+
+            {% endfor %}
 
         </div>
-    </section>
 
+    </section>
 </div>
 
 {% endblock %}
