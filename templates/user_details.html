@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="user-details">
+
+    <div class="user-left">
+        <div class="audit-container">
+            <a href="{{ url_for('admin') }}" class="back-btn">←</a>
+            
+            <!-- AUDIT LOGS -->
+            <div class="audit-box">
+                <div class="audit-header">
+                    <h2>Audit Logs</h2>
+                    <span class="filter">last 30 days</span>
+                </div>
+
+                <div class="audit-table">
+                    <div class="audit-row header">
+                        <div>Time</div>
+                        <div>Action</div>
+                        <div>IP Address</div>
+                    </div>
+
+                    {% if logs %}
+                        {% for log in logs %}
+                            <div class="audit-row">
+                                <div>{{ log.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
+                                <div>{{ log.action }}</div>
+                                <div>{{ log.ip_address }}</div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="audit-row">
+                            <div colspan="3">No audit logs available</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- ACCOUNT PROTECTION RULES -->
+        <div class="rules-box">
+            <h2>Account Protection Rules</h2>
+
+            <form method="POST" action="{{ url_for('update_security_rules', user_id=user.id) }}">
+                <div class="rule">
+                    <span>Block account after 3 failed logins</span>
+                    <input type="checkbox" name="block_after_failed_logins"
+                        {% if user.block_after_failed_logins %}checked{% endif %}>
+                </div>
+
+                <div class="rule">
+                    <span>Temporary block (15 min)</span>
+                    <input type="checkbox" name="temporary_block"
+                        {% if user.temporary_block %}checked{% endif %}>
+                </div>
+
+                <div class="rule">
+                    <span>Notification for identity confirmation</span>
+                    <input type="checkbox" name="notify_on_suspicious"
+                        {% if user.notify_on_suspicious %}checked{% endif %}>
+                </div>
+                <button type="submit" class="rules-save-btn">Save changes</button>
+
+                {% if user.blocked_until %}
+                <form method="POST" action="{{ url_for('unlock_user', user_id=user.id) }}">
+                    <button type="submit" class="unlock-btn">Unlock account</button>
+                </form>
+                {% endif %}
+            </form>
+        </div>
+
+    </div>
+
+    <!-- RIGHT SIDE MONITORING -->
+    <div class="user-right">
+
+        <div class="monitor-box">
+            <h2>Security Monitoring</h2>
+
+            <div class="monitor-item">
+                📍 Login from new IP address<br>
+                <small>New York, USA</small>
+            </div>
+
+            <div class="monitor-item">
+                ⏰ Unusual time<br>
+                <small>03:00 AM</small>
+            </div>
+
+            <div class="monitor-item">
+                ⭐ Mass deletion detected<br>
+                <small>20 files, 2 min</small>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

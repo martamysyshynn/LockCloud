@@ -6,6 +6,7 @@ from flask_mail import Mail, Message
 import random
 import os
 from werkzeug.utils import secure_filename
+from datetime import datetime, timedelta
 
 UPLOAD_FOLDER = 'uploads'
 
@@ -73,9 +74,6 @@ def signup():
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
     if request.method == 'POST':
-        session.pop('otp', None)
-        session.pop('temp_user_id', None)
-
         email = request.form['email']
         password = request.form['password']
 
@@ -83,34 +81,87 @@ def signin():
         cursor = connection.cursor(dictionary=True)
         cursor.execute("SELECT * FROM users WHERE email=%s", (email,))
         user = cursor.fetchone()
+
+        if not user:
+            flash("Invalid email or password", "danger")
+            cursor.close()
+            connection.close()
+            return redirect(url_for('signin'))
+
+        # Перевірка тимчасового блокування
+        if user.get('blocked_until') and user['blocked_until'] > datetime.now():
+            flash("Account is temporarily blocked. Try later.", "danger")
+            cursor.close()
+            connection.close()
+            return redirect(url_for('signin'))
+
+        # Перевірка пароля
+        if not check_password_hash(user['password'], password):
+            failed_attempts = (user.get('failed_attempts') or 0) + 1
+
+            # Оновлюємо лічильник невдалих спроб
+            cursor.execute(
+                "UPDATE users SET failed_attempts=%s WHERE id=%s",
+                (failed_attempts, user['id'])
+            )
+
+            # Якщо досягнуто ліміт і тимчасове блокування увімкнене
+            if failed_attempts >= 3 and user.get('temporary_block') == 1:
+                blocked_until = datetime.now() + timedelta(minutes=15)
+                cursor.execute(
+                    "UPDATE users SET blocked_until=%s, failed_attempts=0 WHERE id=%s",
+                    (blocked_until, user['id'])
+                )
+
+            connection.commit()
+            cursor.close()
+            connection.close()
+            flash("Invalid email or password", "danger")
+            return redirect(url_for('signin'))
+
+        # Якщо пароль правильний — скидаємо лічильник невдалих спроб
+        cursor.execute(
+            "UPDATE users SET failed_attempts=0, blocked_until=NULL WHERE id=%s",
+            (user['id'],)
+        )
+        connection.commit()
+
+        # 2FA: перевірка, чи увімкнена
+        if user.get('two_factor_enabled') == 1:
+            otp = generate_otp()
+            session['temp_user_id'] = user['id']
+            session['otp'] = otp
+
+            msg = Message('Your 2FA Code', recipients=[user['email']])
+            msg.body = f"Your verification code is: {otp}"
+            mail.send(msg)
+
+            cursor.close()
+            connection.close()
+            return redirect(url_for('two_factor'))
+
+        # Звичайний вхід без 2FA
+        session['user_id'] = user['id']
+        session['user_name'] = user['full_name']
+        session['role'] = user['role']
+
+        # Запис у журнал аудиту
+        cursor.execute(
+            "INSERT INTO audit_logs (user_id, action, ip_address) VALUES (%s, %s, %s)",
+            (user['id'], 'Login', request.remote_addr)
+        )
+        connection.commit()
         cursor.close()
         connection.close()
 
-        if user and check_password_hash(user['password'], password):
+        flash(f"Welcome, {user['full_name']}!", "success")
 
-            if user['two_factor_enabled']:
-                if 'otp' not in session:
-                    otp = generate_otp()
-                    session['temp_user_id'] = user['id']
-                    session['otp'] = otp
+        if user['role'] == 'admin':
+            return redirect(url_for('admin'))
 
-                    msg = Message('Your 2FA Code', recipients=[user['email']])
-                    msg.body = f"Your verification code is: {otp}"
-                    mail.send(msg)
+        return redirect(url_for('home'))
 
-                return redirect(url_for('two_factor'))
-
-            session['user_id'] = user['id']
-            session['user_name'] = user['full_name']
-            session['role'] = user['role']   # ← ДОДАТИ
-
-            flash(f"Welcome, {user['full_name']}!", "success")
-
-            if user['role'] == 'admin':      # ← ДОДАТИ
-                return redirect(url_for('admin'))
-
-            return redirect(url_for('home'))
-
+    # GET-запит
     return render_template('sign_in_page.html')
 
 @app.route('/two-factor', methods=['GET', 'POST'])
@@ -129,6 +180,17 @@ def two_factor():
             cursor = connection.cursor(dictionary=True)
             cursor.execute("SELECT role, full_name FROM users WHERE id=%s", (user_id,))
             user = cursor.fetchone()
+
+            cursor_log = connection.cursor()
+            cursor_log.execute(
+                "INSERT INTO audit_logs (user_id, action, ip_address) VALUES (%s, %s, %s)",
+                (user_id, 'Login (2FA)', request.remote_addr)
+            )
+            connection.commit()
+
+            cursor_log.close()
+            cursor.close()
+            connection.close()
 
             session['user_id'] = user_id
             session['role'] = user['role']
@@ -841,6 +903,92 @@ def admin():
     users = cursor.fetchall()
 
     return render_template('admin_page.html', users=users)
+
+@app.route('/admin/user/<int:user_id>')
+def user_details(user_id):
+
+    if 'user_id' not in session:
+        return redirect(url_for('signin'))
+
+    if session.get('role') != 'admin':
+        return redirect(url_for('storage'))
+
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT id, full_name, email,
+               block_after_failed_logins,
+               temporary_block,
+               notify_on_suspicious,
+               blocked_until
+        FROM users
+        WHERE id=%s
+    """, (user_id,))
+    user = cursor.fetchone()
+
+    cursor.execute("""
+        SELECT created_at, action, ip_address
+        FROM audit_logs
+        WHERE user_id=%s
+        ORDER BY created_at DESC
+        LIMIT 10
+    """, (user_id,))
+    logs = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+
+    return render_template('user_details.html', user=user, logs=logs)
+
+@app.route('/admin/update-security/<int:user_id>', methods=['POST'])
+def update_security_rules(user_id):
+    if 'user_id' not in session or session.get('role') != 'admin':
+        return redirect(url_for('signin'))
+
+    block_after = 1 if 'block_after_failed_logins' in request.form else 0
+    temp_block = 1 if 'temporary_block' in request.form else 0
+    notify = 1 if 'notify_on_suspicious' in request.form else 0
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        UPDATE users
+        SET block_after_failed_logins=%s,
+            temporary_block=%s,
+            notify_on_suspicious=%s
+        WHERE id=%s
+    """, (block_after, temp_block, notify, user_id))
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    flash("Security rules updated", "success")
+    return redirect(url_for('user_details', user_id=user_id))
+
+@app.route('/admin/unlock/<int:user_id>', methods=['POST'])
+def unlock_user(user_id):
+    if 'user_id' not in session or session.get('role') != 'admin':
+        return redirect(url_for('signin'))
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        UPDATE users
+        SET failed_attempts=0,
+            blocked_until=NULL
+        WHERE id=%s
+    """, (user_id,))
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    flash("Account unlocked", "success")
+    return redirect(url_for('user_details', user_id=user_id))
 
 if __name__ == '__main__':
     app.run(debug=True)

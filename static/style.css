@@ -1153,6 +1153,26 @@ body {
 }
 /* ADMIN PAGE */
 
+.logout-btn {
+    position: fixed;       /* завжди зверху, не штовхає контент */
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: #D09EF2;
+    color: #020002;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: bold;
+    z-index: 1000;         /* щоб була поверх всього */
+    transition: 0.3s;
+}
+
+.logout-btn:hover {
+    background-color: #1B1A1B;
+    color: #D09EF2;
+    border: 2px solid #D09EF2;
+}
+
 .admin-title{
     color:#D09EF2;
     font-size:42px;
@@ -1193,4 +1213,152 @@ body {
 .user-email{
     color:#999;
     font-size:15px;
+}
+
+.user-details{
+    display:flex;
+    gap:30px;
+    padding:40px 60px;
+}
+
+.user-left{
+    flex:2;
+}
+
+.user-right{
+    flex:1;
+}
+
+.audit-container {   /* обгортка для кнопки і audit-box */
+    position: relative;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    color: #D09EF2;
+    text-decoration: none;
+    font-size: 20px;
+
+    position: absolute; /* тепер кнопка незалежна від потоку */
+    top: -30px;         /* піднімаємо над audit-box */
+    left: 0;
+
+    transition: 0.3s;
+}
+
+.back-btn:hover {
+    background: #D09EF2;
+    color: #020002;
+}
+
+/* AUDIT */
+
+.audit-box{
+    background:#1B1A1B;
+    border-radius:25px;
+    padding:25px;
+    margin-bottom:30px;
+}
+
+.audit-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.audit-header h2{
+    color:#D09EF2;
+}
+
+.filter{
+    background:#2A2A2A;
+    padding:6px 12px;
+    border-radius:8px;
+}
+
+.audit-row{
+    display:flex;
+    justify-content:space-between;
+    padding:15px 0;
+    border-bottom:1px solid #2A2A2A;
+}
+
+.audit-row.header{
+    color:#999;
+    font-size:14px;
+}
+
+/* RULES */
+
+.rules-box{
+    background:#1B1A1B;
+    border-radius:25px;
+    padding:25px;
+}
+
+.rules-box h2{
+    color:#D09EF2;
+    margin-bottom:20px;
+}
+
+.rule{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:15px;
+}
+
+/* RIGHT */
+
+.monitor-box{
+    background:#1B1A1B;
+    border-radius:25px;
+    padding:25px;
+}
+
+.monitor-box h2{
+    color:#D09EF2;
+    margin-bottom:20px;
+}
+
+.monitor-item{
+    margin-bottom:25px;
+}
+
+.rules-save-btn {
+    margin-top: 20px;
+    width: 100%;
+    padding: 14px;
+    background-color: #D09EF2;
+    color: #020002;
+    border: none;
+    border-radius: 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.rules-save-btn:hover {
+    opacity: 0.9;
+}
+
+.unlock-btn {
+    margin-top: 15px;
+    width: 100%;
+    padding: 14px;
+    background-color: transparent;
+    color: #D09EF2;
+    border: 2px solid #D09EF2;
+    border-radius: 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.unlock-btn:hover {
+    background-color: #D09EF2;
+    color: #020002;
 }

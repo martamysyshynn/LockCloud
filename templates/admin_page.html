@@ -2,6 +2,8 @@
 
 {% block content %}
 
+<a href="{{ url_for('logout') }}" class="logout-btn">Log out</a>
+
 <h1 class="admin-title">Admin — {{ session.user_name }}</h1>
 
 <div class="users-box">
@@ -9,16 +11,9 @@
 
     {% for user in users %}
     <a href="{{ url_for('user_details', user_id=user.id) }}" class="user-row">
-
-        <div class="user-name">
-            {{ user.full_name }}
-        </div>
-
-        <div class="user-email">
-            {{ user.email }}
-        </div>
-
-    </div>
+        <div class="user-name">{{ user.full_name }}</div>
+        <div class="user-email">{{ user.email }}</div>
+    </a>
     {% endfor %}
 
 </div>
