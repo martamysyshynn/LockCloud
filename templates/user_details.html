@@ -62,13 +62,14 @@
                         {% if user.notify_on_suspicious %}checked{% endif %}>
                 </div>
                 <button type="submit" class="rules-save-btn">Save changes</button>
-
-                {% if user.blocked_until %}
-                <form method="POST" action="{{ url_for('unlock_user', user_id=user.id) }}">
-                    <button type="submit" class="unlock-btn">Unlock account</button>
-                </form>
-                {% endif %}
             </form>
+
+            {% if user.blocked_until %}
+            <form method="POST" action="{{ url_for('unlock_user', user_id=user.id) }}">
+                <button type="submit" class="unlock-btn">Unlock account</button>
+            </form>
+            {% endif %}
+    
         </div>
 
     </div>
@@ -79,21 +80,18 @@
         <div class="monitor-box">
             <h2>Security Monitoring</h2>
 
-            <div class="monitor-item">
-                📍 Login from new IP address<br>
-                <small>New York, USA</small>
-            </div>
-
-            <div class="monitor-item">
-                ⏰ Unusual time<br>
-                <small>03:00 AM</small>
-            </div>
-
-            <div class="monitor-item">
-                ⭐ Mass deletion detected<br>
-                <small>20 files, 2 min</small>
-            </div>
-
+            {% if alerts %}
+                {% for alert in alerts %}
+                    <div class="monitor-item">
+                        ⚠️ {{ alert.message }}<br>
+                        <small>{{ alert.details }}</small>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="monitor-item">
+                    ✅ No suspicious activity detected
+                </div>
+            {% endif %}
         </div>
 
     </div>

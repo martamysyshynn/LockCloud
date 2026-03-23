@@ -79,6 +79,7 @@ def signin():
 
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
+
         cursor.execute("SELECT * FROM users WHERE email=%s", (email,))
         user = cursor.fetchone()
 
@@ -88,46 +89,38 @@ def signin():
             connection.close()
             return redirect(url_for('signin'))
 
-        # Перевірка тимчасового блокування
         if user.get('blocked_until') and user['blocked_until'] > datetime.now():
-            flash("Account is temporarily blocked. Try later.", "danger")
+            flash(f"Account temporarily blocked until {user['blocked_until']}", "danger")
             cursor.close()
             connection.close()
             return redirect(url_for('signin'))
 
-        # Перевірка пароля
         if not check_password_hash(user['password'], password):
-            failed_attempts = (user.get('failed_attempts') or 0) + 1
+            failed_attempts = user['failed_attempts'] + 1
+            blocked_until = None
 
-            # Оновлюємо лічильник невдалих спроб
-            cursor.execute(
-                "UPDATE users SET failed_attempts=%s WHERE id=%s",
-                (failed_attempts, user['id'])
-            )
-
-            # Якщо досягнуто ліміт і тимчасове блокування увімкнене
-            if failed_attempts >= 3 and user.get('temporary_block') == 1:
+            if failed_attempts >= 3 and user['block_after_failed_logins']:
                 blocked_until = datetime.now() + timedelta(minutes=15)
-                cursor.execute(
-                    "UPDATE users SET blocked_until=%s, failed_attempts=0 WHERE id=%s",
-                    (blocked_until, user['id'])
-                )
+                flash("Account temporarily blocked due to multiple failed login attempts", "danger")
+                failed_attempts = 0 
 
+            cursor.execute(
+                "UPDATE users SET failed_attempts=%s, blocked_until=%s WHERE id=%s",
+                (failed_attempts, blocked_until, user['id'])
+            )
             connection.commit()
+
             cursor.close()
             connection.close()
-            flash("Invalid email or password", "danger")
             return redirect(url_for('signin'))
 
-        # Якщо пароль правильний — скидаємо лічильник невдалих спроб
         cursor.execute(
             "UPDATE users SET failed_attempts=0, blocked_until=NULL WHERE id=%s",
             (user['id'],)
         )
         connection.commit()
 
-        # 2FA: перевірка, чи увімкнена
-        if user.get('two_factor_enabled') == 1:
+        if user.get('two_factor_enabled') and user.get('role') != 'admin':
             otp = generate_otp()
             session['temp_user_id'] = user['id']
             session['otp'] = otp
@@ -140,30 +133,23 @@ def signin():
             connection.close()
             return redirect(url_for('two_factor'))
 
-        # Звичайний вхід без 2FA
         session['user_id'] = user['id']
         session['user_name'] = user['full_name']
         session['role'] = user['role']
 
-        # Запис у журнал аудиту
         cursor.execute(
             "INSERT INTO audit_logs (user_id, action, ip_address) VALUES (%s, %s, %s)",
             (user['id'], 'Login', request.remote_addr)
         )
         connection.commit()
+
         cursor.close()
         connection.close()
 
         flash(f"Welcome, {user['full_name']}!", "success")
+        return redirect(url_for('admin') if user['role'] == 'admin' else url_for('home'))
 
-        if user['role'] == 'admin':
-            return redirect(url_for('admin'))
-
-        return redirect(url_for('home'))
-
-    # GET-запит
     return render_template('sign_in_page.html')
-
 @app.route('/two-factor', methods=['GET', 'POST'])
 def two_factor():
     if 'temp_user_id' not in session:
@@ -663,6 +649,10 @@ def delete_folder(folder_id):
         "UPDATE folders SET is_deleted=1 WHERE id=%s AND user_id=%s",
         (folder_id, session['user_id'])
     )
+    cursor.execute(
+        "INSERT INTO audit_logs (user_id, action, ip_address) VALUES (%s, %s, %s)",
+        (session['user_id'], 'Delete folder', request.remote_addr)
+    )
 
     connection.commit()
     cursor.close()
@@ -682,6 +672,11 @@ def delete_file(file_id):
     cursor.execute(
         "UPDATE files SET is_deleted=1 WHERE id=%s AND user_id=%s",
         (file_id, session['user_id'])
+    )
+
+    cursor.execute(
+        "INSERT INTO audit_logs (user_id, action, ip_address) VALUES (%s, %s, %s)",
+        (session['user_id'], 'Delete file', request.remote_addr)
     )
 
     connection.commit()
@@ -939,7 +934,9 @@ def user_details(user_id):
     cursor.close()
     connection.close()
 
-    return render_template('user_details.html', user=user, logs=logs)
+    alerts = analyze_security(user_id)
+
+    return render_template('user_details.html', user=user, logs=logs, alerts=alerts)
 
 @app.route('/admin/update-security/<int:user_id>', methods=['POST'])
 def update_security_rules(user_id):
@@ -968,7 +965,7 @@ def update_security_rules(user_id):
     flash("Security rules updated", "success")
     return redirect(url_for('user_details', user_id=user_id))
 
-@app.route('/admin/unlock/<int:user_id>', methods=['POST'])
+@app.route('/admin/unblock-user/<int:user_id>', methods=['POST'])
 def unlock_user(user_id):
     if 'user_id' not in session or session.get('role') != 'admin':
         return redirect(url_for('signin'))
@@ -976,19 +973,75 @@ def unlock_user(user_id):
     connection = get_db_connection()
     cursor = connection.cursor()
 
-    cursor.execute("""
-        UPDATE users
-        SET failed_attempts=0,
-            blocked_until=NULL
-        WHERE id=%s
-    """, (user_id,))
-
+    cursor.execute(
+        "UPDATE users SET failed_attempts=0, blocked_until=NULL WHERE id=%s",
+        (user_id,)
+    )
     connection.commit()
     cursor.close()
     connection.close()
 
-    flash("Account unlocked", "success")
+    flash("User has been unblocked", "success")
     return redirect(url_for('user_details', user_id=user_id))
+
+def analyze_security(user_id):
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT action, ip_address, created_at
+        FROM audit_logs
+        WHERE user_id=%s
+        ORDER BY created_at DESC
+        LIMIT 20
+    """, (user_id,))
+    
+    logs = cursor.fetchall()
+
+    alerts = []
+
+    if not logs:
+        return alerts
+
+    # 📍 1. Новий IP
+    last_ip = logs[0]['ip_address']
+    for log in logs[1:]:
+        if log['ip_address'] != last_ip:
+            alerts.append({
+                "type": "ip",
+                "message": "Login from new IP address",
+                "details": log['ip_address']
+            })
+            break
+
+    # ⏰ 2. Підозрілий час
+    for log in logs:
+        hour = log['created_at'].hour
+        if hour >= 0 and hour <= 6:
+            alerts.append({
+                "type": "time",
+                "message": "Unusual login time",
+                "details": f"{hour}:00"
+            })
+            break
+
+    # ⭐ 3. Масове видалення
+    delete_count = 0
+    for log in logs:
+        if log['action'] in ['Delete file', 'Delete folder']:
+            delete_count += 1
+
+    if delete_count >= 5:
+        alerts.append({
+            "type": "delete",
+            "message": "Mass deletion detected",
+            "details": f"{delete_count} actions"
+        })
+
+    cursor.close()
+    connection.close()
+
+    return alerts
 
 if __name__ == '__main__':
     app.run(debug=True)
