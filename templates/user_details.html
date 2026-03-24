@@ -39,7 +39,6 @@
             </div>
         </div>
         
-        <!-- ACCOUNT PROTECTION RULES -->
         <div class="rules-box">
             <h2>Account Protection Rules</h2>
 
@@ -48,12 +47,6 @@
                     <span>Block account after 3 failed logins</span>
                     <input type="checkbox" name="block_after_failed_logins"
                         {% if user.block_after_failed_logins %}checked{% endif %}>
-                </div>
-
-                <div class="rule">
-                    <span>Temporary block (15 min)</span>
-                    <input type="checkbox" name="temporary_block"
-                        {% if user.temporary_block %}checked{% endif %}>
                 </div>
 
                 <div class="rule">
@@ -74,7 +67,6 @@
 
     </div>
 
-    <!-- RIGHT SIDE MONITORING -->
     <div class="user-right">
 
         <div class="monitor-box">

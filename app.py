@@ -143,6 +143,12 @@ def signin():
         )
         connection.commit()
 
+        alerts = analyze_security(user['id'])
+
+        if user.get('notify_on_suspicious'):
+            for alert in alerts:
+                create_notification(user['id'], alert['message'])
+
         cursor.close()
         connection.close()
 
@@ -150,6 +156,7 @@ def signin():
         return redirect(url_for('admin') if user['role'] == 'admin' else url_for('home'))
 
     return render_template('sign_in_page.html')
+
 @app.route('/two-factor', methods=['GET', 'POST'])
 def two_factor():
     if 'temp_user_id' not in session:
@@ -238,12 +245,26 @@ def notifications():
     
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
+
+    # 👇 отримуємо user
     cursor.execute("SELECT * FROM users WHERE id=%s", (session['user_id'],))
     user = cursor.fetchone()
+
+    # 👇 отримуємо notifications
+    cursor.execute(
+        "SELECT * FROM notifications WHERE user_id=%s ORDER BY created_at DESC",
+        (session['user_id'],)
+    )
+    notifications = cursor.fetchall()
+
     cursor.close()
     connection.close()
     
-    return render_template('profile_notifications_page.html', user=user)
+    return render_template(
+        'profile_notifications_page.html',
+        user=user,  # ✅ ДОДАТИ
+        notifications=notifications
+    )
 
 @app.route('/settings')
 def settings():
@@ -1003,7 +1024,6 @@ def analyze_security(user_id):
     if not logs:
         return alerts
 
-    # 📍 1. Новий IP
     last_ip = logs[0]['ip_address']
     for log in logs[1:]:
         if log['ip_address'] != last_ip:
@@ -1014,7 +1034,6 @@ def analyze_security(user_id):
             })
             break
 
-    # ⏰ 2. Підозрілий час
     for log in logs:
         hour = log['created_at'].hour
         if hour >= 0 and hour <= 6:
@@ -1025,7 +1044,6 @@ def analyze_security(user_id):
             })
             break
 
-    # ⭐ 3. Масове видалення
     delete_count = 0
     for log in logs:
         if log['action'] in ['Delete file', 'Delete folder']:
@@ -1038,10 +1056,31 @@ def analyze_security(user_id):
             "details": f"{delete_count} actions"
         })
 
+   
+    cursor.execute("SELECT notify_on_suspicious FROM users WHERE id=%s", (user_id,))
+    user_settings = cursor.fetchone()
+
+    if user_settings and user_settings['notify_on_suspicious']:
+        for alert in alerts:
+            create_notification(user_id, alert['message'])
+
     cursor.close()
     connection.close()
 
     return alerts
+
+def create_notification(user_id, message):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "INSERT INTO notifications (user_id, message) VALUES (%s, %s)",
+        (user_id, message)
+    )
+
+    connection.commit()
+    cursor.close()
+    connection.close()
 
 if __name__ == '__main__':
     app.run(debug=True)

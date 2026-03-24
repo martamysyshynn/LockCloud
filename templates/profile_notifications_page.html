@@ -27,24 +27,23 @@
     </aside>
 
     <section class="profile-content">
-        <h1 class="page-title">Notification</h1>
-
         <div class="notification-list">
-
-            <div class="notification-card">
-                <i class="fa-regular fa-comment"></i>
-                <span>Warning! Suspicious activity</span>
-            </div>
-
-            <div class="notification-card">
-                <i class="fa-regular fa-comment"></i>
-                <span>Confirm your identity</span>
-            </div>
+            {% if notifications %}
+                {% for n in notifications %}
+                    <div class="notification-card">
+                        <i class="fa-regular fa-comment"></i>
+                        <span>{{ n.message }}</span>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="notification-card">
+                    <span>No notifications</span>
+                </div>
+            {% endif %}
 
         </div>
     </section>
     
-
 </div>
 
 {% endblock %}
