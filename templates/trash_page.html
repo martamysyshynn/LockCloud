@@ -43,8 +43,10 @@
 
 {% for folder in folders %}
 <div class="file-row">
-    <i class="fa-regular fa-folder"></i>
-    <span>{{ folder.name }}</span>
+    <div style="display:flex; align-items:center; gap:8px; flex:1;">
+        <i class="fa-regular fa-folder"></i>
+        <span>{{ folder.name }}</span>
+    </div>
 
     <div style="display:flex; gap:10px;">
         <form action="/restore-folder/{{ folder.id }}" method="POST">

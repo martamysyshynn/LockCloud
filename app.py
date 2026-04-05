@@ -7,6 +7,7 @@ import random
 import os
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
+import re
 
 UPLOAD_FOLDER = 'uploads'
 
@@ -35,6 +36,24 @@ def get_user_upload_folder(user_id):
 def home():
     return render_template('home_page.html')
 
+def validate_password(password):
+    if len(password) < 8:
+        return "Password must be at least 8 characters long"
+
+    if not re.search(r"[A-Z]", password):
+        return "Password must contain at least one uppercase letter"
+
+    if not re.search(r"[a-z]", password):
+        return "Password must contain at least one lowercase letter"
+
+    if not re.search(r"[0-9]", password):
+        return "Password must contain at least one digit"
+
+    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+        return "Password must contain at least one special character"
+
+    return None
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -44,8 +63,13 @@ def signup():
         confirm_password = request.form['confirm_password']
         two_factor_enabled = 1 if 'two_factor' in request.form else 0
         
-        if password != confirm_password:
+        if password != confirm_password:            
             flash("Passwords do not match", "danger")
+            return render_template('sign_up_page.html')
+        
+        error = validate_password(password)
+        if error:
+            flash(error, "danger")
             return render_template('sign_up_page.html')
         
         hashed_password = generate_password_hash(password)
@@ -68,6 +92,7 @@ def signup():
         finally:
             cursor.close()
             connection.close()
+            return render_template('sign_up_page.html')
 
     return render_template('sign_up_page.html')
 
@@ -79,7 +104,6 @@ def signin():
 
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
-
         cursor.execute("SELECT * FROM users WHERE email=%s", (email,))
         user = cursor.fetchone()
 
@@ -102,14 +126,15 @@ def signin():
             if failed_attempts >= 3 and user['block_after_failed_logins']:
                 blocked_until = datetime.now() + timedelta(minutes=15)
                 flash("Account temporarily blocked due to multiple failed login attempts", "danger")
-                failed_attempts = 0 
+                failed_attempts = 0
+            else:
+                flash("Invalid email or password", "danger")
 
             cursor.execute(
                 "UPDATE users SET failed_attempts=%s, blocked_until=%s WHERE id=%s",
                 (failed_attempts, blocked_until, user['id'])
             )
             connection.commit()
-
             cursor.close()
             connection.close()
             return redirect(url_for('signin'))
@@ -142,18 +167,13 @@ def signin():
             (user['id'], 'Login', request.remote_addr)
         )
         connection.commit()
-
-        alerts = analyze_security(user['id'])
-
-        if user.get('notify_on_suspicious'):
-            for alert in alerts:
-                create_notification(user['id'], alert['message'])
-
         cursor.close()
         connection.close()
 
+        analyze_security(user['id'])
+
         flash(f"Welcome, {user['full_name']}!", "success")
-        return redirect(url_for('admin') if user['role'] == 'admin' else url_for('home'))
+        return redirect(url_for('admin') if user['role'] == 'admin' else url_for('storage'))
 
     return render_template('sign_in_page.html')
 
@@ -246,11 +266,9 @@ def notifications():
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
 
-    # 👇 отримуємо user
     cursor.execute("SELECT * FROM users WHERE id=%s", (session['user_id'],))
     user = cursor.fetchone()
 
-    # 👇 отримуємо notifications
     cursor.execute(
         "SELECT * FROM notifications WHERE user_id=%s ORDER BY created_at DESC",
         (session['user_id'],)
@@ -262,7 +280,7 @@ def notifications():
     
     return render_template(
         'profile_notifications_page.html',
-        user=user,  # ✅ ДОДАТИ
+        user=user,  
         notifications=notifications
     )
 
@@ -293,22 +311,32 @@ def change_password():
         flash("New passwords do not match", "danger")
         return redirect(url_for('settings'))
     
+    error = validate_password(new_password)
+    if error:
+        flash(error, "danger")
+        return redirect(url_for('settings'))
+    
     connection = get_db_connection()
+
     cursor = connection.cursor(dictionary=True)
     cursor.execute("SELECT password, email FROM users WHERE id=%s", (session['user_id'],))
     user = cursor.fetchone()
+    cursor.close()  
 
-    if not check_password_hash(user['password'], current_password):
+    if not user or not check_password_hash(user['password'], current_password):
         flash("Current password is incorrect", "danger")
-        cursor.close()
         connection.close()
         return redirect(url_for('settings'))
 
     hashed_password = generate_password_hash(new_password)
 
-    cursor.execute("UPDATE users SET password=%s WHERE id=%s", (hashed_password, session['user_id']))
+    update_cursor = connection.cursor()
+    update_cursor.execute(
+        "UPDATE users SET password=%s WHERE id=%s",
+        (hashed_password, int(session['user_id']))  # ✅ явний int
+    )
     connection.commit()
-    cursor.close()
+    update_cursor.close()
     connection.close()
 
     msg = Message("Password changed", recipients=[user['email']])
@@ -316,7 +344,7 @@ def change_password():
     mail.send(msg)
 
     flash("Password successfully changed", "success")
-    return redirect(url_for('settings')) 
+    return redirect(url_for('settings'))
 
 @app.route('/settings/change-email', methods=['POST'])
 def change_email():
@@ -409,6 +437,11 @@ def reset_password():
 
         if new_password != confirm_password:
             flash("Passwords do not match", "danger")
+            return redirect(url_for('reset_password'))
+        
+        error = validate_password(new_password)
+        if error:
+            flash(error, "danger")
             return redirect(url_for('reset_password'))
 
         if otp != session.get('reset_otp'):
@@ -670,6 +703,12 @@ def delete_folder(folder_id):
         "UPDATE folders SET is_deleted=1 WHERE id=%s AND user_id=%s",
         (folder_id, session['user_id'])
     )
+
+    cursor.execute(
+        "UPDATE files SET is_deleted=1 WHERE folder_id=%s AND user_id=%s",
+        (folder_id, session['user_id'])
+    )
+    
     cursor.execute(
         "INSERT INTO audit_logs (user_id, action, ip_address) VALUES (%s, %s, %s)",
         (session['user_id'], 'Delete folder', request.remote_addr)
@@ -687,6 +726,12 @@ def delete_file(file_id):
     if 'user_id' not in session:
         return redirect(url_for('signin'))
 
+    folder_id = request.form.get('folder_id')
+    if folder_id in (None, '', 'None'):
+        folder_id = None
+    else:
+        folder_id = int(folder_id)
+
     connection = get_db_connection()
     cursor = connection.cursor()
 
@@ -694,7 +739,6 @@ def delete_file(file_id):
         "UPDATE files SET is_deleted=1 WHERE id=%s AND user_id=%s",
         (file_id, session['user_id'])
     )
-
     cursor.execute(
         "INSERT INTO audit_logs (user_id, action, ip_address) VALUES (%s, %s, %s)",
         (session['user_id'], 'Delete file', request.remote_addr)
@@ -705,7 +749,7 @@ def delete_file(file_id):
     connection.close()
 
     flash("File moved to trash", "success")
-    return redirect(url_for('storage'))
+    return redirect(url_for('storage', folder_id=folder_id))
 
 @app.route('/trash')
 def trash():
@@ -725,17 +769,12 @@ def trash():
         "SELECT * FROM files WHERE user_id=%s AND is_deleted=1",
         (session['user_id'],)
     )
-
     files = cursor.fetchall()
 
     cursor.close()
     connection.close()
 
-    return render_template(
-    "trash_page.html",
-    files=files,
-    folders=folders
-)
+    return render_template("trash_page.html", files=files, folders=folders)
 
 @app.route('/restore-folder/<int:folder_id>', methods=['POST'])
 def restore_folder(folder_id):
@@ -746,6 +785,11 @@ def restore_folder(folder_id):
     cursor = connection.cursor()
     cursor.execute(
         "UPDATE folders SET is_deleted=0 WHERE id=%s AND user_id=%s",
+        (folder_id, session['user_id'])
+    )
+
+    cursor.execute(
+        "UPDATE files SET is_deleted=0 WHERE folder_id=%s AND user_id=%s",
         (folder_id, session['user_id'])
     )
     connection.commit()
@@ -763,22 +807,26 @@ def delete_folder_permanently(folder_id):
 
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
-
     cursor.execute(
         "SELECT * FROM files WHERE folder_id=%s AND user_id=%s",
         (folder_id, session['user_id'])
     )
     files_in_folder = cursor.fetchall()
+    cursor.close()
+
+    delete_cursor = connection.cursor()
     for file in files_in_folder:
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], str(session['user_id']), file['stored_name'])
         if os.path.exists(file_path):
             os.remove(file_path)
-        cursor.execute("DELETE FROM files WHERE id=%s", (file['id'],))
+        delete_cursor.execute("DELETE FROM files WHERE id=%s", (file['id'],))
 
-    cursor.execute("DELETE FROM folders WHERE id=%s AND user_id=%s", (folder_id, session['user_id']))
-
+    delete_cursor.execute(
+        "DELETE FROM folders WHERE id=%s AND user_id=%s",
+        (folder_id, session['user_id'])
+    )
     connection.commit()
-    cursor.close()
+    delete_cursor.close()
     connection.close()
 
     flash("Folder permanently deleted", "success")
@@ -804,6 +852,7 @@ def restore_file(file_id):
     flash("File restored", "success")
     return redirect(url_for('trash'))
 
+
 @app.route('/delete-file-permanently/<int:file_id>', methods=['POST'])
 def delete_file_permanently(file_id):
     if 'user_id' not in session:
@@ -811,37 +860,28 @@ def delete_file_permanently(file_id):
 
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
-
     cursor.execute(
         "SELECT * FROM files WHERE id=%s AND user_id=%s",
         (file_id, session['user_id'])
     )
-
     file = cursor.fetchone()
+    cursor.close()
 
     if file:
-
-        file_path = os.path.join(
-            app.config['UPLOAD_FOLDER'],
-            str(session['user_id']),
-            file['stored_name']
-        )
-
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], str(session['user_id']), file['stored_name'])
         if os.path.exists(file_path):
             os.remove(file_path)
 
-        cursor.execute(
-            "DELETE FROM files WHERE id=%s",
-            (file_id,)
-        )
-
+        delete_cursor = connection.cursor()
+        delete_cursor.execute("DELETE FROM files WHERE id=%s", (file_id,))
         connection.commit()
+        delete_cursor.close()
 
-    cursor.close()
     connection.close()
 
     flash("File permanently deleted", "success")
     return redirect(url_for('trash'))
+
 
 @app.route('/storage/share-file/<int:file_id>', methods=['POST'])
 def share_file(file_id):
