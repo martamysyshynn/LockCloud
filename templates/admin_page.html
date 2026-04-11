@@ -1,20 +1,67 @@
 {% extends "base.html" %}
-
 {% block content %}
 
 <a href="{{ url_for('logout') }}" class="logout-btn">Log out</a>
 
-<h1 class="admin-title">Admin — {{ session.user_name }}</h1>
+<div class="admin-page">
 
-<div class="users-box">
-    <h2>Users</h2>
+  <div class="admin-top">
+    <h1 class="admin-title">Admin — {{ session.user_name }}</h1>
+  </div>
+
+  <!-- STATS ROW -->
+    <div class="admin-stats">
+        <div class="admin-stat-card">
+            <div class="admin-stat-label">Total users</div>
+            <div class="admin-stat-value">{{ stats.total }}</div>
+            <div class="admin-stat-sub">registered accounts</div>
+        </div>
+        <div class="admin-stat-card">
+            <div class="admin-stat-label">Blocked</div>
+            <div class="admin-stat-value" style="color: #f07070;">{{ stats.blocked }}</div>
+            <div class="admin-stat-sub">accounts restricted</div>
+        </div>
+        <div class="admin-stat-card">
+            <div class="admin-stat-label">2FA enabled</div>
+            <div class="admin-stat-value">{{ stats.two_fa }}</div>
+            <div class="admin-stat-sub">accounts protected</div>
+        </div>
+    </div>
+
+  <!-- USERS TABLE -->
+  <div class="users-box">
+    <div class="users-box-header">
+      <h2>Users</h2>
+      <span class="ud-badge">{{ users | length }} total</span>
+    </div>
+
+    <div class="users-table-head">
+      <span></span>
+      <span>Name</span>
+      <span>Email</span>
+      <span>Status</span>
+      <span></span>
+    </div>
 
     {% for user in users %}
-    <a href="{{ url_for('user_details', user_id=user.id) }}" class="user-row">
+    <a href="{{ url_for('user_details', user_id=user.id) }}" class="user-row-new">
+      <div class="user-avatar-sm">{{ user.full_name[:2].upper() }}</div>
+      <div class="user-info-col">
         <div class="user-name">{{ user.full_name }}</div>
         <div class="user-email">{{ user.email }}</div>
+      </div>
+      <div class="user-email-col">{{ user.email }}</div>
+      <div>
+        {% if user.blocked_until %}
+          <span class="user-status status-blocked">Blocked</span>
+        {% else %}
+          <span class="user-status status-active">Active</span>
+        {% endif %}
+      </div>
+      <div class="user-arrow">›</div>
     </a>
     {% endfor %}
+  </div>
 
 </div>
 

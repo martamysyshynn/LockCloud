@@ -8,6 +8,8 @@ import os
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 import re
+import urllib.request
+import json
 
 UPLOAD_FOLDER = 'uploads'
 
@@ -945,20 +947,26 @@ def logout():
 
 @app.route('/admin')
 def admin():
-
     if 'user_id' not in session:
         return redirect(url_for('signin'))
-
     if session.get('role') != 'admin':
         return redirect(url_for('storage'))
 
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
-
-    cursor.execute("SELECT id, full_name, email FROM users")
+    cursor.execute("SELECT id, full_name, email, blocked_until, two_factor_enabled FROM users")
     users = cursor.fetchall()
+    cursor.close()
+    connection.close()
 
-    return render_template('admin_page.html', users=users)
+    now = datetime.now()
+    stats = {
+        'total': len(users),
+        'blocked': sum(1 for u in users if u['blocked_until'] and u['blocked_until'] > now),
+        'two_fa': sum(1 for u in users if u['two_factor_enabled'])
+    }
+
+    return render_template('admin_page.html', users=users, stats=stats)
 
 @app.route('/admin/user/<int:user_id>')
 def user_details(user_id):
@@ -1045,10 +1053,25 @@ def unlock_user(user_id):
     flash("User has been unblocked", "success")
     return redirect(url_for('user_details', user_id=user_id))
 
+def get_ip_location(ip):
+    try:
+        with urllib.request.urlopen(f"http://ip-api.com/json/{ip}", timeout=3) as response:
+            data = json.loads(response.read().decode())
+            if data['status'] == 'success':
+                return {
+                    "city": data.get('city', ''),
+                    "country": data.get('country', ''),
+                    "region": data.get('regionName', ''),
+                    "display": f"{data.get('city', '')}, {data.get('country', '')}"
+                }
+    except:
+        pass
+    return None
+ 
 def analyze_security(user_id):
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
-
+ 
     cursor.execute("""
         SELECT action, ip_address, created_at
         FROM audit_logs
@@ -1056,71 +1079,89 @@ def analyze_security(user_id):
         ORDER BY created_at DESC
         LIMIT 20
     """, (user_id,))
-    
+ 
     logs = cursor.fetchall()
-
     alerts = []
-
+ 
     if not logs:
         return alerts
-
+ 
+  
+    # last_ip = "8.8.8.8"
     last_ip = logs[0]['ip_address']
+    location = get_ip_location(last_ip)
     for log in logs[1:]:
         if log['ip_address'] != last_ip:
             alerts.append({
                 "type": "ip",
                 "message": "Login from new IP address",
-                "details": log['ip_address']
+                "details": last_ip,
+                "location": location
             })
             break
-
+ 
     for log in logs:
         hour = log['created_at'].hour
         if hour >= 0 and hour <= 6:
+            log_location = get_ip_location(log['ip_address'])
             alerts.append({
                 "type": "time",
                 "message": "Unusual login time",
-                "details": f"{hour}:00"
+                "details": f"{hour}:00",
+                "location": log_location
             })
             break
 
-    delete_count = 0
-    for log in logs:
-        if log['action'] in ['Delete file', 'Delete folder']:
-            delete_count += 1
-
+    delete_count = sum(1 for log in logs if log['action'] in ['Delete file', 'Delete folder'])
     if delete_count >= 5:
         alerts.append({
             "type": "delete",
             "message": "Mass deletion detected",
-            "details": f"{delete_count} actions"
+            "details": f"{delete_count} actions",
+            "location": None
         })
+ 
+    recent_logins = [
+        log for log in logs
+        if log['action'] in ['Login', 'Login (2FA)']
+        and log['created_at'] > datetime.now() - timedelta(minutes=10)
+    ]
 
-   
-    cursor.execute("SELECT notify_on_suspicious FROM users WHERE id=%s", (user_id,))
+    if len(recent_logins) >= 5:
+        bf_location = get_ip_location(recent_logins[0]['ip_address'])
+        alerts.append({
+            "type": "bruteforce",
+            "message": "Multiple login attempts in short period",
+            "details": f"{len(recent_logins)} logins in last 10 minutes",
+            "location": bf_location
+        })
+ 
+    cursor.execute("SELECT notify_on_suspicious, role FROM users WHERE id=%s", (user_id,))
     user_settings = cursor.fetchone()
 
-    if user_settings and user_settings['notify_on_suspicious']:
+    if user_settings and user_settings['notify_on_suspicious'] and user_settings['role'] != 'admin':
         for alert in alerts:
             create_notification(user_id, alert['message'])
-
+ 
     cursor.close()
     connection.close()
-
+ 
     return alerts
 
 def create_notification(user_id, message):
     connection = get_db_connection()
-    cursor = connection.cursor()
+    cursor = connection.cursor(dictionary=True)
 
-    cursor.execute(
-        "INSERT INTO notifications (user_id, message) VALUES (%s, %s)",
-        (user_id, message)
-    )
+    cursor.execute("SELECT email FROM users WHERE id=%s", (user_id,))
+    user = cursor.fetchone()
 
-    connection.commit()
     cursor.close()
     connection.close()
+
+    if user:
+        msg = Message("Security alert", recipients=[user['email']])
+        msg.body = f"Suspicious activity detected on your account:\n\n{message}\n\nIf this wasn't you, please contact support immediately."
+        mail.send(msg)
 
 if __name__ == '__main__':
     app.run(debug=True)

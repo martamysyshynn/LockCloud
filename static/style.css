@@ -1432,46 +1432,192 @@ body {
     border: 2px solid #D09EF2;
 }
 
-.admin-title{
-    color:#D09EF2;
-    font-size:42px;
-    margin:40px 60px;
+/* ===== ADMIN PAGE REDESIGN ===== */
+
+.admin-page {
+    padding: 32px 60px 60px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-.users-box{
-    background:#1B1A1B;
-    border-radius:25px;
-    padding:40px;
-    margin:0 60px;
+.admin-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
 }
 
-.users-box h2{
-    color:#D09EF2;
-    margin-bottom:25px;
-    font-size:24px;
+.admin-title {
+    color: #D09EF2;
+    font-size: 36px;
+    margin: 0;
 }
 
-.user-row{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:18px 0;
-    border-bottom:1px solid #2A2A2A;
-    font-size:17px;
+/* STATS */
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
 }
 
-.user-row:last-child{
-    border-bottom:none;
+.admin-stat-card {
+    background: #1B1A1B;
+    border-radius: 16px;
+    padding: 20px 24px;
 }
 
-.user-name{
-    color:#fff;
-    font-weight:600;
+.admin-stat-label {
+    font-size: 11px;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
 }
 
-.user-email{
-    color:#999;
-    font-size:15px;
+.admin-stat-value {
+    font-size: 32px;
+    font-weight: bold;
+    color: #D09EF2;
+    line-height: 1;
+}
+
+.admin-stat-sub {
+    font-size: 12px;
+    color: #444;
+    margin-top: 6px;
+}
+
+/* USERS TABLE */
+.users-box {
+    background: #1B1A1B;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+.users-box-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid #2A2A2A;
+}
+
+.users-box-header h2 {
+    color: #D09EF2;
+    font-size: 20px;
+    margin: 0;
+}
+
+.users-table-head {
+    display: grid;
+    grid-template-columns: 52px 1fr 220px 110px 40px;
+    gap: 12px;
+    padding: 10px 24px;
+    font-size: 11px;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid #2A2A2A;
+    align-items: center;
+}
+
+.user-row-new {
+    display: grid;
+    grid-template-columns: 52px 1fr 220px 110px 40px;
+    gap: 12px;
+    padding: 14px 24px;
+    border-bottom: 1px solid #1E1D1E;
+    align-items: center;
+    text-decoration: none;
+    transition: background 0.15s;
+    cursor: pointer;
+}
+
+.user-row-new:last-child {
+    border-bottom: none;
+}
+
+.user-row-new:hover {
+    background: #222122;
+}
+
+.user-row-new:hover .user-arrow {
+    color: #D09EF2;
+}
+
+.user-avatar-sm {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #2A1A3A;
+    border: 1.5px solid #D09EF2;
+    color: #D09EF2;
+    font-size: 13px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-family: 'Itim', sans-serif;
+}
+
+.user-info-col {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.user-name {
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-email {
+    color: #555;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-email-col {
+    color: #555;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-status {
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+.status-active {
+    background: #152215;
+    color: #6bbf6b;
+}
+
+.status-blocked {
+    background: #2a1515;
+    color: #f07070;
+}
+
+.user-arrow {
+    color: #444;
+    font-size: 18px;
+    text-align: center;
+    transition: color 0.15s;
 }
 
 /* ===== USER DETAILS PAGE ===== */
@@ -1790,3 +1936,42 @@ body {
     color: #888;
     font-size: 12px;
 }
+
+/* ===== LOCATION IN SECURITY MONITORING ===== */
+
+.ud-alert-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ud-alert-location {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+    padding: 4px 10px;
+    background: #222122;
+    border-radius: 10px;
+    width: fit-content;
+}
+
+.ud-location-icon {
+    font-size: 11px;
+}
+
+.ud-location-text {
+    font-size: 11px;
+    color: #999;
+    font-family: monospace;
+    letter-spacing: 0.02em;
+}
+
+/* alert-type tinting for location badge */
+.ud-alert-ip     .ud-alert-location { background: #1a2535; }
+.ud-alert-time   .ud-alert-location { background: #2a2215; }
+.ud-alert-bruteforce .ud-alert-location { background: #251520; }
+
+.ud-alert-ip     .ud-location-text { color: #7aa0cc; }
+.ud-alert-time   .ud-location-text { color: #c8a870; }
+.ud-alert-bruteforce .ud-location-text { color: #c084a0; }
