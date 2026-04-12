@@ -954,7 +954,10 @@ def admin():
 
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
-    cursor.execute("SELECT id, full_name, email, blocked_until, two_factor_enabled FROM users")
+    cursor.execute(
+        "SELECT id, full_name, email, blocked_until, two_factor_enabled FROM users WHERE id != %s",
+        (session['user_id'],)
+    )   
     users = cursor.fetchall()
     cursor.close()
     connection.close()
@@ -1003,7 +1006,7 @@ def user_details(user_id):
     cursor.close()
     connection.close()
 
-    alerts = analyze_security(user_id)
+    alerts = analyze_security(user_id, notify=False)
 
     return render_template('user_details.html', user=user, logs=logs, alerts=alerts)
 
@@ -1068,7 +1071,7 @@ def get_ip_location(ip):
         pass
     return None
  
-def analyze_security(user_id):
+def analyze_security(user_id, notify=True):
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
  
@@ -1139,7 +1142,7 @@ def analyze_security(user_id):
     cursor.execute("SELECT notify_on_suspicious, role FROM users WHERE id=%s", (user_id,))
     user_settings = cursor.fetchone()
 
-    if user_settings and user_settings['notify_on_suspicious'] and user_settings['role'] != 'admin':
+    if notify and user_settings and user_settings['notify_on_suspicious'] and user_settings['role'] != 'admin':
         for alert in alerts:
             create_notification(user_id, alert['message'])
  

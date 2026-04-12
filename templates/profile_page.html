@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% block content %}
 
 <div class="top-bar-content">
@@ -13,52 +12,54 @@
 
     <aside class="profile-sidebar">
         <div class="sidebar-user">
-            <i class="fa-regular fa-user"></i>
+            <div class="sidebar-avatar">
+                <i class="fa-regular fa-user"></i>
+            </div>
             <span>{{ user.full_name }}</span>
         </div>
-
         <div class="sidebar-line"></div>
-
         <nav class="sidebar-nav">
-            <a href="/profile" class="active">Profile</a>
-            <a href="/notifications">Notification</a>
-            <a href="/settings">Settings</a>
-            <a href="{{ url_for('logout') }}">Sign out</a>
+            <a href="/profile" class="active">
+                <i class="fa-regular fa-user"></i> Profile
+            </a>
+            <a href="/settings">
+                <i class="fa-solid fa-gear"></i> Settings
+            </a>
+            <a href="{{ url_for('logout') }}" class="signout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign out
+            </a>
         </nav>
     </aside>
 
     <section class="profile-card">
         <h1>Profile</h1>
-
         <form method="post" action="{{ url_for('update_phone') }}">
 
-            <div class="profile-field">
-                <label>Name</label>
-                <input type="text" value="{{ user.full_name.split(' ')[0] }}" disabled>
-            </div>
-
-            <div class="profile-field">
-                <label>Surname</label>
-                <input type="text"
-                       value="{{ user.full_name.split(' ')[1] if user.full_name.split(' ')|length > 1 else '' }}"
-                       disabled>
-            </div>
-
-            <div class="profile-field">
-                <label>Email</label>
-                <input type="email" value="{{ user.email }}" disabled>
-            </div>
-
-            <div class="profile-field">
-                <label>Phone Number</label>
-                <input type="text"
-                       name="phone"
-                       value="{{ user.phone if user.phone else '' }}"
-                       placeholder="Add phone number">
+            <div class="profile-fields-grid">
+                <div class="profile-field">
+                    <label>Name</label>
+                    <input type="text" value="{{ user.full_name.split(' ')[0] }}" disabled>
+                </div>
+                <div class="profile-field">
+                    <label>Surname</label>
+                    <input type="text"
+                        value="{{ user.full_name.split(' ')[1] if user.full_name.split(' ')|length > 1 else '' }}"
+                        disabled>
+                </div>
+                <div class="profile-field profile-field-full">
+                    <label>Email</label>
+                    <input type="email" value="{{ user.email }}" disabled>
+                </div>
+                <div class="profile-field profile-field-full">
+                    <label>Phone Number</label>
+                    <input type="text"
+                        name="phone"
+                        value="{{ user.phone if user.phone else '' }}"
+                        placeholder="Add phone number">
+                </div>
             </div>
 
             <button class="profile-save-btn" type="submit">Save</button>
-
         </form>
     </section>
 

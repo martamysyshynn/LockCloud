@@ -21,53 +21,60 @@
 
         <nav class="sidebar-nav">
             <a href="/profile">Profile</a>
-            <a href="/notifications">Notification</a>
             <a href="/settings" class="active">Settings</a>
+            <a href="{{ url_for('logout') }}" class="signout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign out
+            </a>
         </nav>
     </aside>
 
     <section class="settings-content">
         <h1>Settings</h1>
+
+        <!-- 🔐 PASSWORD -->
         <h2>Security</h2>
 
-        <form method="POST" action="/settings/change-password" class="settings-row">
-            <input
-                type="password"
-                name="current_password"
-                placeholder="Current password"
-                required
-            >
+        <form method="POST" action="/settings/change-password" class="settings-grid">
 
-            <input
-                type="password"
-                name="new_password"
-                placeholder="New password"
-                required
-            >
+            <div class="settings-field">
+                <label>Current password</label>
+                <input type="password" name="current_password" required>
+            </div>
 
-            <input
-                type="password"
-                name="confirm_password"
-                placeholder="Confirm new password"
-                required
-            >
+            <div class="settings-field">
+                <label>New password</label>
+                <input type="password" name="new_password" required>
+            </div>
 
-            <button type="submit" class="settings-btn">
-                Change Password
-            </button>
+            <div class="settings-field settings-field-full">
+                <label>Confirm new password</label>
+                <input type="password" name="confirm_password" required>
+            </div>
+
+            <div class="settings-field settings-field-full">
+                <button type="submit" class="settings-btn">
+                    Change Password
+                </button>
+            </div>
+
         </form>
 
-        <form method="POST" action="/settings/change-email" class="settings-row">
-            <input
-                type="email"
-                name="new_email"
-                placeholder="New email address"
-                required
-            >
+        <!-- 📧 EMAIL -->
+        <h2>Account</h2>
 
-            <button type="submit" class="settings-btn">
-                Change Email
-            </button>
+        <form method="POST" action="/settings/change-email" class="settings-grid">
+
+            <div class="settings-field settings-field-full">
+                <label>New email</label>
+                <input type="email" name="new_email" required>
+            </div>
+
+            <div class="settings-field settings-field-full">
+                <button type="submit" class="settings-btn">
+                    Change Email
+                </button>
+            </div>
+
         </form>
 
     </section>

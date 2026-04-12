@@ -28,68 +28,68 @@
     <aside class="storage-sidebar">
         <div class="create-wrapper" id="create-wrapper">
             <button class="create-btn" type="button" onclick="toggleCreateMenu()">
-            <span class="create-btn-left">
-                <i class="fa-solid fa-plus"></i> Create
-            </span>
-            <span class="create-arrow">▼</span>
+                <span class="create-btn-left">
+                    <i class="fa-solid fa-plus"></i> Create
+                </span>
+                <span class="create-arrow">▼</span>
             </button>
 
             <div class="create-dropdown">
 
-            <div class="drop-label">New</div>
-            <button class="drop-item" type="button" onclick="showFolderForm()">
-                <span class="drop-icon"><i class="fa-regular fa-folder"></i></span>
-                New folder
-            </button>
+                <div class="drop-label">New</div>
+                <button class="drop-item" type="button" onclick="showFolderForm()">
+                    <span class="drop-icon"><i class="fa-regular fa-folder"></i></span>
+                    New folder
+                </button>
 
-            <div class="folder-inline" id="folder-inline">
-                <form action="/storage/create-folder" method="POST">
-                <input type="hidden" name="parent_id" value="{{ current_folder_id }}">
-                <input type="text" name="folder_name" id="folder-name-input" placeholder="Folder name" required>
-                <div class="folder-inline-row">
-                    <button type="submit" class="fi-ok">Create</button>
-                    <button type="button" class="fi-cancel" onclick="hideFolderForm()">Cancel</button>
+                <div class="folder-inline" id="folder-inline">
+                    <form action="/storage/create-folder" method="POST">
+                        <input type="hidden" name="parent_id" value="{{ current_folder_id }}">
+                        <input type="text" name="folder_name" id="folder-name-input" placeholder="Folder name" required>
+                        <div class="folder-inline-row">
+                            <button type="submit" class="fi-ok">Create</button>
+                            <button type="button" class="fi-cancel" onclick="hideFolderForm()">Cancel</button>
+                        </div>
+                    </form>
                 </div>
+
+                <div class="drop-divider"></div>
+                <div class="drop-label">Upload</div>
+
+                <form action="/storage/upload" method="POST" enctype="multipart/form-data" id="upload-form">
+                    <input type="hidden" name="folder_id" value="{{ current_folder_id }}">
+                    <label class="drop-item drop-choose">
+                        <span class="drop-icon"><i class="fa-solid fa-file-arrow-up"></i></span>
+                        Choose file
+                        <input type="file" name="file" id="dnd-file" hidden
+                            onchange="document.getElementById('upload-form').submit()">
+                    </label>
+
+                    <div
+                        class="dnd-zone"
+                        id="dnd-zone"
+                        ondragover="onDragOver(event)"
+                        ondragleave="onDragLeave(event)"
+                        ondrop="onDrop(event)"
+                        onclick="document.getElementById('dnd-file').click()"
+                    >
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span>Drag &amp; drop files here<br>or click to choose</span>
+                    </div>
                 </form>
-            </div>
-
-            <div class="drop-divider"></div>
-            <div class="drop-label">Upload</div>
-
-            <form action="/storage/upload" method="POST" enctype="multipart/form-data" id="upload-form">
-                <input type="hidden" name="folder_id" value="{{ current_folder_id }}">
-                <label class="drop-item drop-choose">
-                    <span class="drop-icon"><i class="fa-solid fa-file-arrow-up"></i></span>
-                    Choose file
-                    <input type="file" name="file" id="dnd-file" hidden 
-                        onchange="document.getElementById('upload-form').submit()">
-                </label>
-
-                <div
-                    class="dnd-zone"
-                    id="dnd-zone"
-                    ondragover="onDragOver(event)"
-                    ondragleave="onDragLeave(event)"
-                    ondrop="onDrop(event)"
-                    onclick="document.getElementById('dnd-file').click()"
-                >
-                    <i class="fa-solid fa-cloud-arrow-up"></i>
-                    <span>Drag &amp; drop files here<br>or click to choose</span>
-                </div>
-            </form>
 
             </div>
         </div>
 
         <nav class="storage-nav">
             <a href="/storage" class="active">
-            <i class="fa-regular fa-folder"></i> My Drive
+                <i class="fa-regular fa-folder"></i> My Drive
             </a>
             <a href="/shared">
-            <i class="fa-solid fa-share-nodes"></i> Shared
+                <i class="fa-solid fa-share-nodes"></i> Shared
             </a>
             <a href="/trash">
-            <i class="fa-regular fa-trash-can"></i> Trash
+                <i class="fa-regular fa-trash-can"></i> Trash
             </a>
         </nav>
     </aside>
@@ -97,141 +97,143 @@
     <section class="storage-content">
         <h1>My Drive</h1>
 
-        <div class="file-list">
-
+        {% if folders %}
+        <div class="section-label">Folders</div>
+        <div class="folders-grid">
             {% for folder in folders %}
-                <div class="file-row">
-
-                <a href="{{ url_for('storage', folder_id=folder.id) }}" class="file-row-left">
-                    <i class="fa-regular fa-folder"></i>
-                    <span>{{ folder.name }}</span>
-                </a>
-
-                <div class="three-dot-wrapper">
-                    <button class="three-dot-btn" onclick="toggleMenu('menu-folder-{{ folder.id }}', event)">
+            <div class="folder-card">
+                <button class="folder-more" onclick="toggleMenu('menu-folder-{{ folder.id }}', event)">
                     <i class="fa-solid fa-ellipsis"></i>
-                    </button>
+                </button>
 
-                    <div class="dot-menu" id="menu-folder-{{ folder.id }}">
+                <div class="dot-menu" id="menu-folder-{{ folder.id }}">
                     <form action="/storage/delete-folder/{{ folder.id }}" method="POST" style="margin:0;">
                         <button type="submit" class="dot-menu-item danger">
-                        <i class="fa-regular fa-trash-can"></i>
-                        Move to trash
+                            <i class="fa-regular fa-trash-can"></i>
+                            Move to trash
                         </button>
                     </form>
+                </div>
+
+                <a href="{{ url_for('storage', folder_id=folder.id) }}" class="folder-card-link">
+                    <div class="folder-icon">
+                        <i class="fa-regular fa-folder"></i>
                     </div>
-                </div>
-
-                </div>
+                    <div class="folder-name">{{ folder.name }}</div>
+                </a>
+            </div>
             {% endfor %}
+        </div>
+        {% endif %}
 
+        {% if files %}
+        <div class="section-label" style="margin-top: 24px;">Files</div>
+        {% endif %}
+
+        <div class="file-list">
             {% for file in files %}
             <div class="file-row">
 
-            <a href="/storage/file/{{ file.id }}" class="file-row-left">
-                <i class="fa-regular fa-file"></i>
-                <span>{{ file.filename }}</span>
-            </a>
+                <a href="/storage/file/{{ file.id }}" class="file-row-left">
+                    <i class="fa-regular fa-file"></i>
+                    <span>{{ file.filename }}</span>
+                </a>
 
-            <div class="three-dot-wrapper">
-                <button class="three-dot-btn" onclick="toggleMenu('menu-{{ file.id }}', event)">
-                <i class="fa-solid fa-ellipsis"></i>
-                </button>
-
-                <div class="dot-menu" id="menu-{{ file.id }}">
-
-                <button class="dot-menu-item" onclick="openShare('{{ file.id }}')">
-                    <i class="fa-solid fa-share-nodes"></i>
-                    Share
-                </button>
-
-                <div class="dot-divider"></div>
-
-                <form action="/storage/delete-file/{{ file.id }}" method="POST" style="margin:0;">
-                    <input type="hidden" name="folder_id" value="{{ current_folder_id }}">
-                    <button type="submit" class="dot-menu-item danger">
-                    <i class="fa-regular fa-trash-can"></i>
-                    Move to trash
+                <div class="three-dot-wrapper">
+                    <button class="three-dot-btn" onclick="toggleMenu('menu-{{ file.id }}', event)">
+                        <i class="fa-solid fa-ellipsis"></i>
                     </button>
-                </form>
 
+                    <div class="dot-menu" id="menu-{{ file.id }}">
+
+                        <button class="dot-menu-item" onclick="openShare('{{ file.id }}')">
+                            <i class="fa-solid fa-share-nodes"></i>
+                            Share
+                        </button>
+
+                        <div class="dot-divider"></div>
+
+                        <form action="/storage/delete-file/{{ file.id }}" method="POST" style="margin:0;">
+                            <input type="hidden" name="folder_id" value="{{ current_folder_id }}">
+                            <button type="submit" class="dot-menu-item danger">
+                                <i class="fa-regular fa-trash-can"></i>
+                                Move to trash
+                            </button>
+                        </form>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="share-{{ file.id }}" class="share-popup">
+                <div class="share-box">
+                    <h2>Share file</h2>
+                    <p>{{ file.filename }}</p>
+                    <form action="/storage/share-file/{{ file.id }}" method="POST">
+                        <input type="email" name="email" placeholder="Enter user email" required>
+                        <button type="submit">Share</button>
+                    </form>
+                    <a href="#" class="close-share">Cancel</a>
                 </div>
             </div>
 
-            </div>
-
-            <!-- share popup без змін -->
-            <div id="share-{{ file.id }}" class="share-popup">
-            <div class="share-box">
-                <h2>Share file</h2>
-                <p>{{ file.filename }}</p>
-                <form action="/storage/share-file/{{ file.id }}" method="POST">
-                <input type="email" name="email" placeholder="Enter user email" required>
-                <button type="submit">Share</button>
-                </form>
-                <a href="#" class="close-share">Cancel</a>
-            </div>
-            </div>
-
             {% endfor %}
-
         </div>
 
     </section>
 </div>
 
 <script>
-    
+
 function toggleCreateMenu() {
-  document.getElementById('create-wrapper').classList.toggle('open');
-  hideFolderForm();
+    document.getElementById('create-wrapper').classList.toggle('open');
+    hideFolderForm();
 }
 function showFolderForm() {
-  document.getElementById('folder-inline').classList.add('visible');
-  document.getElementById('folder-name-input').focus();
+    document.getElementById('folder-inline').classList.add('visible');
+    document.getElementById('folder-name-input').focus();
 }
 function hideFolderForm() {
-  const f = document.getElementById('folder-inline');
-  if (f) f.classList.remove('visible');
+    const f = document.getElementById('folder-inline');
+    if (f) f.classList.remove('visible');
 }
 function onDragOver(e) {
-  e.preventDefault();
-  document.getElementById('dnd-zone').classList.add('drag-over');
+    e.preventDefault();
+    document.getElementById('dnd-zone').classList.add('drag-over');
 }
 function onDragLeave(e) {
-  document.getElementById('dnd-zone').classList.remove('drag-over');
+    document.getElementById('dnd-zone').classList.remove('drag-over');
 }
 function onDrop(e) {
-  e.preventDefault();
-  document.getElementById('dnd-zone').classList.remove('drag-over');
-  const input = document.getElementById('dnd-file');
-  input.files = e.dataTransfer.files;
-  document.getElementById('upload-form').submit();
+    e.preventDefault();
+    document.getElementById('dnd-zone').classList.remove('drag-over');
+    const input = document.getElementById('dnd-file');
+    input.files = e.dataTransfer.files;
+    document.getElementById('upload-form').submit();
 }
 document.addEventListener('click', function(e) {
-  const cw = document.getElementById('create-wrapper');
-  if (cw && !cw.contains(e.target)) {
-    cw.classList.remove('open');
-    hideFolderForm();
-  }
-}
-);
-function toggleMenu(id, e) {
-  e.stopPropagation();
-  const menu = document.getElementById(id);
-  const isOpen = menu.classList.contains('open');
-  document.querySelectorAll('.dot-menu').forEach(m => m.classList.remove('open'));
-  if (!isOpen) menu.classList.add('open');
-}
-
-function openShare(fileId) {
-  document.querySelectorAll('.dot-menu').forEach(m => m.classList.remove('open'));
-  window.location.hash = 'share-' + fileId;
-}
-
-document.addEventListener('click', function() {
-  document.querySelectorAll('.dot-menu').forEach(m => m.classList.remove('open'));
+    const cw = document.getElementById('create-wrapper');
+    if (cw && !cw.contains(e.target)) {
+        cw.classList.remove('open');
+        hideFolderForm();
+    }
 });
+function toggleMenu(id, e) {
+    e.stopPropagation();
+    const menu = document.getElementById(id);
+    const isOpen = menu.classList.contains('open');
+    document.querySelectorAll('.dot-menu').forEach(m => m.classList.remove('open'));
+    if (!isOpen) menu.classList.add('open');
+}
+function openShare(fileId) {
+    document.querySelectorAll('.dot-menu').forEach(m => m.classList.remove('open'));
+    window.location.hash = 'share-' + fileId;
+}
+document.addEventListener('click', function() {
+    document.querySelectorAll('.dot-menu').forEach(m => m.classList.remove('open'));
+});
+
 </script>
 
 {% endblock %}

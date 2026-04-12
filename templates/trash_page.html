@@ -43,46 +43,54 @@
 
 {% for folder in folders %}
 <div class="file-row">
-    <div style="display:flex; align-items:center; gap:8px; flex:1;">
+    <div class="file-row-left">
         <i class="fa-regular fa-folder"></i>
         <span>{{ folder.name }}</span>
     </div>
-
-    <div style="display:flex; gap:10px;">
-        <form action="/restore-folder/{{ folder.id }}" method="POST">
-            <button class="delete-btn">
-                <i class="fa-solid fa-rotate-left"></i>
-            </button>
-        </form>
-
-        <form action="/delete-folder-permanently/{{ folder.id }}" method="POST">
-            <button class="delete-btn">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </form>
+    <div class="three-dot-wrapper">
+        <button class="three-dot-btn" onclick="toggleMenu('menu-folder-{{ folder.id }}', event)">
+            <i class="fa-solid fa-ellipsis"></i>
+        </button>
+        <div class="dot-menu" id="menu-folder-{{ folder.id }}">
+            <form action="/restore-folder/{{ folder.id }}" method="POST" style="margin:0;">
+                <button type="submit" class="dot-menu-item">
+                    <i class="fa-solid fa-rotate-left"></i> Restore
+                </button>
+            </form>
+            <div class="dot-divider"></div>
+            <form action="/delete-folder-permanently/{{ folder.id }}" method="POST" style="margin:0;">
+                <button type="submit" class="dot-menu-item danger">
+                    <i class="fa-solid fa-xmark"></i> Delete permanently
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 {% endfor %}
 
 {% for file in files %}
 <div class="file-row">
-    <a href="/storage/file/{{ file.id }}">
+    <div class="file-row-left">
         <i class="fa-regular fa-file"></i>
         <span>{{ file.filename }}</span>
-    </a>
-
-    <div style="display:flex; gap:10px;">
-        <form action="/restore-file/{{ file.id }}" method="POST">
-            <button class="delete-btn">
-                <i class="fa-solid fa-rotate-left"></i>
-            </button>
-        </form>
-
-        <form action="/delete-file-permanently/{{ file.id }}" method="POST">
-            <button class="delete-btn">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </form>
+    </div>
+    <div class="three-dot-wrapper">
+        <button class="three-dot-btn" onclick="toggleMenu('menu-file-{{ file.id }}', event)">
+            <i class="fa-solid fa-ellipsis"></i>
+        </button>
+        <div class="dot-menu" id="menu-file-{{ file.id }}">
+            <form action="/restore-file/{{ file.id }}" method="POST" style="margin:0;">
+                <button type="submit" class="dot-menu-item">
+                    <i class="fa-solid fa-rotate-left"></i> Restore
+                </button>
+            </form>
+            <div class="dot-divider"></div>
+            <form action="/delete-file-permanently/{{ file.id }}" method="POST" style="margin:0;">
+                <button type="submit" class="dot-menu-item danger">
+                    <i class="fa-solid fa-xmark"></i> Delete permanently
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 {% endfor %}
@@ -90,5 +98,19 @@
 </div>
 </section>
 </div>
+
+
+<script>
+function toggleMenu(id, e) {
+    e.stopPropagation();
+    const menu = document.getElementById(id);
+    const isOpen = menu.classList.contains('open');
+    document.querySelectorAll('.dot-menu').forEach(m => m.classList.remove('open'));
+    if (!isOpen) menu.classList.add('open');
+}
+document.addEventListener('click', function() {
+    document.querySelectorAll('.dot-menu').forEach(m => m.classList.remove('open'));
+});
+</script>
 
 {% endblock %}
