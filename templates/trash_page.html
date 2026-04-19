@@ -1,104 +1,99 @@
 {% extends "base.html" %}
-
 {% block content %}
-
 <div class="top-bar-content">
     <div class="name-text">{{ session.user_name }}</div>
-
     <div class="search-box">
         <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" placeholder="Search in trash...">
+        <input type="text" placeholder="{{ t('search_trash') }}">
     </div>
-
     <div class="top-icons">
-        <a href="/profile">
+        <a href="/set-lang/{{ 'uk' if current_lang == 'en' else 'en' }}" class="btn-language">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            {{ current_lang | upper }}
+        </a>
+        <a href="/profile" class="profile-icon-btn">
             <i class="fa-regular fa-user"></i>
         </a>
     </div>
 </div>
 
 <div class="storage-layout">
+    <aside class="storage-sidebar">
+        <nav class="storage-nav">
+            <a href="/storage">
+                <i class="fa-regular fa-folder"></i> {{ t('nav_my_drive') }}
+            </a>
+            <a href="/shared">
+                <i class="fa-solid fa-share-nodes"></i> {{ t('nav_shared') }}
+            </a>
+            <a href="/trash" class="active">
+                <i class="fa-regular fa-trash-can"></i> {{ t('nav_trash') }}
+            </a>
+        </nav>
+    </aside>
 
-<aside class="storage-sidebar">
-    <nav class="storage-nav">
-        <a href="/storage" class="active">
-            <i class="fa-regular fa-folder"></i>
-            My Drive
-        </a>
-        <a href="/shared">
-            <i class="fa-solid fa-share-nodes"></i>
-            Shared
-        </a>
-        <a href="/trash">
-            <i class="fa-regular fa-trash-can"></i>
-            Trash
-        </a>
-    </nav>
-</aside>
+    <section class="storage-content">
+        <h1>{{ t('nav_trash') }}</h1>
+        <div class="file-list">
+            {% for folder in folders %}
+            <div class="file-row">
+                <div class="file-row-left">
+                    <i class="fa-regular fa-folder"></i>
+                    <span>{{ folder.name }}</span>
+                </div>
+                <div class="three-dot-wrapper">
+                    <button class="three-dot-btn" onclick="toggleMenu('menu-folder-{{ folder.id }}', event)">
+                        <i class="fa-solid fa-ellipsis"></i>
+                    </button>
+                    <div class="dot-menu" id="menu-folder-{{ folder.id }}">
+                        <form action="/restore-folder/{{ folder.id }}" method="POST" style="margin:0;">
+                            <button type="submit" class="dot-menu-item">
+                                <i class="fa-solid fa-rotate-left"></i> {{ t('action_restore') }}
+                            </button>
+                        </form>
+                        <div class="dot-divider"></div>
+                        <form action="/delete-folder-permanently/{{ folder.id }}" method="POST" style="margin:0;">
+                            <button type="submit" class="dot-menu-item danger">
+                                <i class="fa-solid fa-xmark"></i> {{ t('action_delete_perm') }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
 
-<section class="storage-content">
-<h1>Trash</h1>
-
-<div class="file-list">
-
-{% for folder in folders %}
-<div class="file-row">
-    <div class="file-row-left">
-        <i class="fa-regular fa-folder"></i>
-        <span>{{ folder.name }}</span>
-    </div>
-    <div class="three-dot-wrapper">
-        <button class="three-dot-btn" onclick="toggleMenu('menu-folder-{{ folder.id }}', event)">
-            <i class="fa-solid fa-ellipsis"></i>
-        </button>
-        <div class="dot-menu" id="menu-folder-{{ folder.id }}">
-            <form action="/restore-folder/{{ folder.id }}" method="POST" style="margin:0;">
-                <button type="submit" class="dot-menu-item">
-                    <i class="fa-solid fa-rotate-left"></i> Restore
-                </button>
-            </form>
-            <div class="dot-divider"></div>
-            <form action="/delete-folder-permanently/{{ folder.id }}" method="POST" style="margin:0;">
-                <button type="submit" class="dot-menu-item danger">
-                    <i class="fa-solid fa-xmark"></i> Delete permanently
-                </button>
-            </form>
+            {% for file in files %}
+            <div class="file-row">
+                <div class="file-row-left">
+                    <i class="fa-regular fa-file"></i>
+                    <span>{{ file.filename }}</span>
+                </div>
+                <div class="three-dot-wrapper">
+                    <button class="three-dot-btn" onclick="toggleMenu('menu-file-{{ file.id }}', event)">
+                        <i class="fa-solid fa-ellipsis"></i>
+                    </button>
+                    <div class="dot-menu" id="menu-file-{{ file.id }}">
+                        <form action="/restore-file/{{ file.id }}" method="POST" style="margin:0;">
+                            <button type="submit" class="dot-menu-item">
+                                <i class="fa-solid fa-rotate-left"></i> {{ t('action_restore') }}
+                            </button>
+                        </form>
+                        <div class="dot-divider"></div>
+                        <form action="/delete-file-permanently/{{ file.id }}" method="POST" style="margin:0;">
+                            <button type="submit" class="dot-menu-item danger">
+                                <i class="fa-solid fa-xmark"></i> {{ t('action_delete_perm') }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-    </div>
+    </section>
 </div>
-{% endfor %}
-
-{% for file in files %}
-<div class="file-row">
-    <div class="file-row-left">
-        <i class="fa-regular fa-file"></i>
-        <span>{{ file.filename }}</span>
-    </div>
-    <div class="three-dot-wrapper">
-        <button class="three-dot-btn" onclick="toggleMenu('menu-file-{{ file.id }}', event)">
-            <i class="fa-solid fa-ellipsis"></i>
-        </button>
-        <div class="dot-menu" id="menu-file-{{ file.id }}">
-            <form action="/restore-file/{{ file.id }}" method="POST" style="margin:0;">
-                <button type="submit" class="dot-menu-item">
-                    <i class="fa-solid fa-rotate-left"></i> Restore
-                </button>
-            </form>
-            <div class="dot-divider"></div>
-            <form action="/delete-file-permanently/{{ file.id }}" method="POST" style="margin:0;">
-                <button type="submit" class="dot-menu-item danger">
-                    <i class="fa-solid fa-xmark"></i> Delete permanently
-                </button>
-            </form>
-        </div>
-    </div>
-</div>
-{% endfor %}
-
-</div>
-</section>
-</div>
-
 
 <script>
 function toggleMenu(id, e) {
@@ -112,5 +107,4 @@ document.addEventListener('click', function() {
     document.querySelectorAll('.dot-menu').forEach(m => m.classList.remove('open'));
 });
 </script>
-
 {% endblock %}

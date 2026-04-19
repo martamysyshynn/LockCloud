@@ -93,41 +93,56 @@ body {
 .btn-language {
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 40px;             
-    height: 40px;
-    color: #D09EF2;      
-    background-color: transparent;
-    border: none !important;          
-    margin-right: 10px;      
+    gap: 7px;
+    background: #1E1D1E;
+    border: 1px solid #2A2A2A;
+    border-radius: 50px;
+    padding: 8px 18px;
+    color: #D09EF2;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: 'Itim', sans-serif;
     text-decoration: none;
-    font-size: 18px;
-    transition: 0.3s;
+    margin-right: 10px;
+    transition: 0.2s;
+}
+
+.btn-language:hover {
+    border-color: #D09EF2;
+    opacity: 0.85;
 }
 
 .buttons a.btn-signin {
     margin-left: 0;      
 }
 
-.buttons a {
-    text-decoration: none;   
-    color: #D09EF2;          
-    font-size: 18px;         
+.buttons a:not(.btn-language) {
+    text-decoration: none;
+    color: #D09EF2;
+    font-size: 15px;
     font-weight: bold;
-    margin-left: 15px;       
-    padding: 8px 16px;       
-    border: 2px solid #D09EF2;
-    border-radius: 5px;
-    transition: 0.3s;
+    margin-left: 10px;
+    padding: 9px 20px;
+    border: 1.5px solid #2A2A2A;
+    border-radius: 50px;
+    background: #1E1D1E;
+    transition: 0.2s;
+    font-family: 'Itim', sans-serif;
+}
+
+.buttons a:not(.btn-language):hover {
+    border-color: #D09EF2;
+    opacity: 0.9;
 }
 
 .buttons a.btn-signup {
     background-color: #D09EF2;
-    color: #020002;           
+    color: #020002;
+    border-color: #D09EF2;
 }
 
-.buttons a:hover {
-    opacity: 0.8;            
+.buttons a.btn-signup:hover {
+    opacity: 0.88;
 }
 
 .pw-rules-list {
@@ -203,17 +218,20 @@ body {
 
 .hero-btn {
     background: #D09EF2;
-    color: #000;
-    border: none;        
-    outline: none;       
-    padding: 20px 90px;
-    border-radius: 10px;
-    font-size: 16px;
+    color: #020002;
+    border: 1.5px solid #D09EF2;
+    outline: none;
+    padding: 13px 44px;
+    border-radius: 50px;
+    font-size: 15px;
+    font-weight: bold;
+    font-family: 'Itim', sans-serif;
     cursor: pointer;
+    transition: 0.2s;
 }
 
 .hero-btn:hover {
-    background: #D09EF2;
+    opacity: 0.88;
 }
 
 /* RIGHT */
@@ -1041,8 +1059,9 @@ body {
 }
 
 .search-box {
-    width: 950px;
-    margin-left: auto;
+    flex: 1;
+    max-width: 850px;
+    margin: 0 20px;
     background: #2A2A2A;
     border-radius: 30px;
     display: flex;
@@ -1064,11 +1083,30 @@ body {
     outline: none;
 }
 
-.top-icons i {
+.top-icons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #1E1D1E;
+    border: 1px solid #2A2A2A;
     color: #D09EF2;
-    font-size: 20px;
-    margin-left: 20px;
-    cursor: pointer;
+    font-size: 16px;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.profile-icon-btn:hover {
+    border-color: #D09EF2;
+    opacity: 0.85;
 }
 
 /* SIDEBAR */
@@ -1578,24 +1616,23 @@ body {
 }
 /* ADMIN PAGE */
 
-.logout-btn {
-    position: fixed;       /* завжди зверху, не штовхає контент */
-    top: 20px;
-    right: 20px;
-    padding: 10px 20px;
-    background-color: #D09EF2;
-    color: #020002;
-    border-radius: 12px;
+.btn-signout {
     text-decoration: none;
+    color: #D09EF2;
+    font-size: 15px;
     font-weight: bold;
-    z-index: 1000;         /* щоб була поверх всього */
-    transition: 0.3s;
+    margin-left: 10px;
+    padding: 9px 20px;
+    border: 1.5px solid #2A2A2A;
+    border-radius: 50px;
+    background: #1E1D1E;
+    transition: 0.2s;
+    font-family: 'Itim', sans-serif;
 }
 
-.logout-btn:hover {
-    background-color: #1B1A1B;
-    color: #D09EF2;
-    border: 2px solid #D09EF2;
+.btn-signout:hover {
+    border-color: #D09EF2;
+    opacity: 0.9;
 }
 
 /* ===== ADMIN PAGE REDESIGN ===== */

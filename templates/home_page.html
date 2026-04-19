@@ -1,80 +1,63 @@
 {% extends "base.html" %}
-
 {% block content %}
 <div class="top-bar-content">
     <div class="name-text">Cloud Storage Name</div>
     <div class="buttons">
-        <a href="#" class="btn-language"><i class="fas fa-globe"></i></a>
-
-        <a href="{{ url_for('signin') }}" class="btn-signin">Sign In</a>
-        <a href="{{ url_for('signup') }}" class="btn-signup">Sign Up</a>
+        <a href="/set-lang/{{ 'uK' if current_lang == 'en' else 'en' }}" class="btn-language">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            {{ current_lang | upper }}
+        </a>
+        <a href="{{ url_for('signin') }}" class="btn-signin">{{ t('nav_sign_in') }}</a>
+        <a href="{{ url_for('signup') }}" class="btn-signup">{{ t('nav_sign_up') }}</a>
     </div>
 </div>
+
 <section class="hero">
     <div class="hero-content">
-        <h1>Cloud Storage</h1>
-        <p>
-            Store, organize, share files, and<br>
-            control access.
-        </p>
-        <a href="{{ url_for('signup') }}" class="hero-btn">Get Started</a>
+        <h1>{{ t('signin_title') }}</h1>
+        <p>{{ t('hero_tagline') }}</p>
+        <a href="{{ url_for('signup') }}" class="hero-btn">{{ t('nav_get_started') }}</a>
     </div>
-
     <div class="hero-image">
         <img src="{{ url_for('static', filename='img/img1.png') }}" alt="Cloud Storage">
     </div>
 </section>
+
 <section class="features">
     <div class="feature-card">
         <i class="fas fa-folder feature-icon"></i>
-        <h3>File Storage</h3>
-        <p>Securely store all<br>your files in one place</p>
+        <h3>{{ t('feature_storage_title') }}</h3>
+        <p>{{ t('feature_storage_desc') }}</p>
     </div>
-
     <div class="feature-card">
         <i class="fas fa-share-alt feature-icon"></i>
-        <h3>File Sharing</h3>
-        <p>Easily share files<br>with others</p>
+        <h3>{{ t('feature_sharing_title') }}</h3>
+        <p>{{ t('feature_sharing_desc') }}</p>
     </div>
-
     <div class="feature-card">
         <i class="fas fa-cog feature-icon"></i>
-        <h3>File Management</h3>
-        <p>Organize your files<br>and folders</p>
+        <h3>{{ t('feature_management_title') }}</h3>
+        <p>{{ t('feature_management_desc') }}</p>
     </div>
 </section>
+
 <section class="security">
     <div class="security-box">
         <div class="security-text">
-            <h2>Adaptive multi-level access control</h2>
-            <p class="security-desc">
-                Our system combines two-factor authentication with real-time
-                behavioral analysis to ensure secure access.
-            </p>
-
+            <h2>{{ t('security_section_title') }}</h2>
+            <p class="security-desc">{{ t('security_section_desc') }}</p>
             <ul class="security-list">
-                <li>
-                    <span class="check">✓</span>
-                    Behavioral signals: IP address, geolocation, time of login,
-                    device type, activity patterns
-                </li>
-                <li>
-                    <span class="check">✓</span>
-                    Adaptive responses: additional verification for unusual
-                    locations, hours, or devices
-                </li>
-                <li>
-                    <span class="check">✓</span>
-                    Smart protection: suspicious behavior triggers temporary
-                    restrictions and identity confirmation
-                </li>
+                <li><span class="check">✓</span>{{ t('security_signals') }}</li>
+                <li><span class="check">✓</span>{{ t('security_adaptive') }}</li>
+                <li><span class="check">✓</span>{{ t('security_smart') }}</li>
             </ul>
         </div>
-
         <div class="security-image">
             <img src="{{ url_for('static', filename='img/img2.png') }}" alt="Security">
         </div>
     </div>
 </section>
-
 {% endblock %}

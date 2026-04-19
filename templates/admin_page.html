@@ -1,68 +1,73 @@
 {% extends "base.html" %}
 {% block content %}
-
-<a href="{{ url_for('logout') }}" class="logout-btn">Log out</a>
-
-<div class="admin-page">
-
-  <div class="admin-top">
-    <h1 class="admin-title">Admin — {{ session.user_name }}</h1>
-  </div>
-
-  <!-- STATS ROW -->
-    <div class="admin-stats">
-        <div class="admin-stat-card">
-            <div class="admin-stat-label">Total users</div>
-            <div class="admin-stat-value">{{ stats.total }}</div>
-            <div class="admin-stat-sub">registered accounts</div>
-        </div>
-        <div class="admin-stat-card">
-            <div class="admin-stat-label">Blocked</div>
-            <div class="admin-stat-value" style="color: #f07070;">{{ stats.blocked }}</div>
-            <div class="admin-stat-sub">accounts restricted</div>
-        </div>
-        <div class="admin-stat-card">
-            <div class="admin-stat-label">2FA enabled</div>
-            <div class="admin-stat-value">{{ stats.two_fa }}</div>
-            <div class="admin-stat-sub">accounts protected</div>
-        </div>
+<div class="top-bar-content">
+    <div class="name-text">NAME</div>
+    <div class="buttons">
+        <a href="/set-lang/{{ 'uk' if current_lang == 'en' else 'en' }}" class="btn-language">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            {{ current_lang | upper }}
+        </a>
+        <a href="{{ url_for('logout') }}" class="btn-signout">{{ t('nav_sign_out') }}</a>
     </div>
-
-  <!-- USERS TABLE -->
-  <div class="users-box">
-    <div class="users-box-header">
-      <h2>Users</h2>
-      <span class="ud-badge">{{ users | length }} total</span>
-    </div>
-
-    <div class="users-table-head">
-      <span></span>
-      <span>Name</span>
-      <span>Email</span>
-      <span>Status</span>
-      <span></span>
-    </div>
-
-    {% for user in users %}
-    <a href="{{ url_for('user_details', user_id=user.id) }}" class="user-row-new">
-      <div class="user-avatar-sm">{{ user.full_name[:2].upper() }}</div>
-      <div class="user-info-col">
-        <div class="user-name">{{ user.full_name }}</div>
-        <div class="user-email">{{ user.email }}</div>
-      </div>
-      <div class="user-email-col">{{ user.email }}</div>
-      <div>
-        {% if user.blocked_until %}
-          <span class="user-status status-blocked">Blocked</span>
-        {% else %}
-          <span class="user-status status-active">Active</span>
-        {% endif %}
-      </div>
-      <div class="user-arrow">›</div>
-    </a>
-    {% endfor %}
-  </div>
-
 </div>
 
+
+<div class="admin-page">
+    <div class="admin-top">
+        <h1 class="admin-title">{{ t('admin_title') }} — {{ session.user_name }}</h1>
+    </div>
+
+    <div class="admin-stats">
+        <div class="admin-stat-card">
+            <div class="admin-stat-label">{{ t('admin_total_users') }}</div>
+            <div class="admin-stat-value">{{ stats.total }}</div>
+            <div class="admin-stat-sub">{{ t('admin_registered') }}</div>
+        </div>
+        <div class="admin-stat-card">
+            <div class="admin-stat-label">{{ t('admin_blocked') }}</div>
+            <div class="admin-stat-value" style="color: #f07070;">{{ stats.blocked }}</div>
+            <div class="admin-stat-sub">{{ t('admin_blocked_desc') }}</div>
+        </div>
+        <div class="admin-stat-card">
+            <div class="admin-stat-label">{{ t('admin_2fa') }}</div>
+            <div class="admin-stat-value">{{ stats.two_fa }}</div>
+            <div class="admin-stat-sub">{{ t('admin_2fa_desc') }}</div>
+        </div>
+    </div>
+
+    <div class="users-box">
+        <div class="users-box-header">
+            <h2>{{ t('admin_total_users') }}</h2>
+            <span class="ud-badge">{{ users | length }} {{ t('admin_total') }}</span>
+        </div>
+        <div class="users-table-head">
+            <span></span>
+            <span>{{ t('admin_name') }}</span>
+            <span>{{ t('profile_email') }}</span>
+            <span>{{ t('admin_status') }}</span>
+            <span></span>
+        </div>
+        {% for user in users %}
+        <a href="{{ url_for('user_details', user_id=user.id) }}" class="user-row-new">
+            <div class="user-avatar-sm">{{ user.full_name[:2].upper() }}</div>
+            <div class="user-info-col">
+                <div class="user-name">{{ user.full_name }}</div>
+                <div class="user-email">{{ user.email }}</div>
+            </div>
+            <div class="user-email-col">{{ user.email }}</div>
+            <div>
+                {% if user.blocked_until %}
+                <span class="user-status status-blocked">{{ t('admin_status_blocked') }}</span>
+                {% else %}
+                <span class="user-status status-active">{{ t('admin_status_active') }}</span>
+                {% endif %}
+            </div>
+            <div class="user-arrow">›</div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

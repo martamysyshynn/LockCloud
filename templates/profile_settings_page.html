@@ -1,84 +1,113 @@
 {% extends "base.html" %}
-
 {% block content %}
-
 <div class="top-bar-content">
-    <div class="name-text">NAME</div>
+    <div class="name-text">Cloud Storage Name</div>
     <div class="buttons">
-        <a href="/storage" class="btn-home">Storage</a>
+        <a href="/set-lang/{{ 'uk' if current_lang == 'en' else 'en' }}" class="btn-language">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            {{ current_lang | upper }}
+        </a>
+        <a href="/storage" class="btn-home">{{ t('storage_title') }}</a>
     </div>
 </div>
 
 <div class="profile-layout">
-
     <aside class="profile-sidebar">
         <div class="sidebar-user">
-            <i class="fa-regular fa-user"></i>
+            <div class="sidebar-avatar">
+                <i class="fa-regular fa-user"></i>
+            </div>
             <span>{{ user.full_name }}</span>
         </div>
-
         <div class="sidebar-line"></div>
-
         <nav class="sidebar-nav">
-            <a href="/profile">Profile</a>
-            <a href="/settings" class="active">Settings</a>
+            <a href="/profile">{{ t('nav_profile') }}</a>
+            <a href="/settings" class="active">{{ t('nav_settings') }}</a>
             <a href="{{ url_for('logout') }}" class="signout">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign out
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> {{ t('nav_sign_out') }}
             </a>
         </nav>
     </aside>
 
     <section class="settings-content">
-        <h1>Settings</h1>
+        <h1>{{ t('settings_title') }}</h1>
 
-        <!-- 🔐 PASSWORD -->
-        <h2>Security</h2>
-
+        <h2>{{ t('settings_security') }}</h2>
         <form method="POST" action="/settings/change-password" class="settings-grid">
-
             <div class="settings-field">
-                <label>Current password</label>
+                <label>{{ t('settings_current_password') }}</label>
                 <input type="password" name="current_password" required>
             </div>
-
             <div class="settings-field">
-                <label>New password</label>
-                <input type="password" name="new_password" required>
+                <label>{{ t('settings_new_password') }}</label>
+                <input type="password" name="new_password" id="s-password" required>
+                <ul class="pw-rules-list">
+                    <li id="s-len">{{ t('password_hint_length') }}</li>
+                    <li id="s-upper">{{ t('password_hint_upper') }}</li>
+                    <li id="s-lower">{{ t('password_hint_lower') }}</li>
+                    <li id="s-digit">{{ t('password_hint_digit') }}</li>
+                    <li id="s-special">{{ t('password_hint_special') }}</li>
+                </ul>
             </div>
-
             <div class="settings-field settings-field-full">
-                <label>Confirm new password</label>
-                <input type="password" name="confirm_password" required>
+                <label>{{ t('settings_confirm_password') }}</label>
+                <input type="password" name="confirm_password" id="s-confirm" required>
+                <p id="s-match" class="match-msg"></p>
             </div>
-
             <div class="settings-field settings-field-full">
-                <button type="submit" class="settings-btn">
-                    Change Password
-                </button>
+                <button type="submit" class="settings-btn">{{ t('settings_change_password') }}</button>
             </div>
-
         </form>
 
-        <!-- 📧 EMAIL -->
-        <h2>Account</h2>
-
+        <h2>{{ t('settings_account') }}</h2>
         <form method="POST" action="/settings/change-email" class="settings-grid">
-
             <div class="settings-field settings-field-full">
-                <label>New email</label>
+                <label>{{ t('settings_new_email') }}</label>
                 <input type="email" name="new_email" required>
             </div>
-
             <div class="settings-field settings-field-full">
-                <button type="submit" class="settings-btn">
-                    Change Email
-                </button>
+                <button type="submit" class="settings-btn">{{ t('settings_change_email') }}</button>
             </div>
-
         </form>
-
     </section>
-
 </div>
+
+<script>
+const sPassword = document.getElementById('s-password');
+const sConfirm  = document.getElementById('s-confirm');
+const sMatch    = document.getElementById('s-match');
+
+const sRules = {
+    's-len':     v => v.length >= 8,
+    's-upper':   v => /[A-Z]/.test(v),
+    's-lower':   v => /[a-z]/.test(v),
+    's-digit':   v => /[0-9]/.test(v),
+    's-special': v => /[!@#$%^&*(),.?":{}|<>]/.test(v),
+};
+
+sPassword.addEventListener('input', function () {
+    const v = this.value;
+    for (const [id, check] of Object.entries(sRules)) {
+        document.getElementById(id).classList.toggle('rule-ok', check(v));
+    }
+    checkSMatch();
+});
+
+sConfirm.addEventListener('input', checkSMatch);
+
+function checkSMatch() {
+    if (!sConfirm.value) { sMatch.textContent = ''; return; }
+    if (sPassword.value === sConfirm.value) {
+        sMatch.textContent = '✓ {{ t("flash_passwords_match") }}';
+        sMatch.style.color = '#4CAF50';
+    } else {
+        sMatch.textContent = '✗ {{ t("flash_passwords_no_match") }}';
+        sMatch.style.color = '#e57373';
+    }
+}
+</script>
 
 {% endblock %}

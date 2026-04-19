@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="{{ current_lang }}">
 <head>
     <meta charset="UTF-8">
     <title>Cloud Storage</title>
@@ -7,16 +7,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="top-bar"></div>
-
-    <main class="page-wrapper">
-        {% block content %}{% endblock %}
-    </main>
-
-    <footer class="bottom-bar">
-        <a href="#">Contact Us</a>
-        <a href="#">Privacy Policy</a>
-        ©2026 All rights reserved
-    </footer>
+<div class="top-bar"></div>
+<main class="page-wrapper">
+    {% block content %}{% endblock %}
+</main>
+<footer class="bottom-bar">
+    <a href="#">{{ t('footer_contact') }}</a>
+    <a href="#">{{ t('footer_privacy') }}</a>
+    {{ t('footer_rights') }}
+</footer>
 </body>
 </html>

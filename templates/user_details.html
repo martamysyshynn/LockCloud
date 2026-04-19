@@ -1,143 +1,137 @@
-
 {% extends "base.html" %}
 {% block content %}
- 
+
 <div class="ud-page">
- 
-  <!-- BACK -->
-  <a href="{{ url_for('admin') }}" class="ud-back">← Back to users</a>
- 
-  <!-- USER HEADER CARD -->
-  <div class="ud-user-card">
-    <div class="ud-avatar">
-      {{ user.full_name[:2].upper() }}
-    </div>
-    <div class="ud-user-info">
-      <div class="ud-user-name">{{ user.full_name }}</div>
-      <div class="ud-user-email">{{ user.email }}</div>
-    </div>
-    {% if user.blocked_until %}
-    <div class="ud-blocked-badge">
-      ⚠ Blocked until {{ user.blocked_until.strftime('%d.%m.%Y %H:%M') }}
-    </div>
-    {% endif %}
-  </div>
- 
-  <!-- MAIN LAYOUT -->
-  <div class="ud-layout">
- 
-    <!-- LEFT COLUMN -->
-    <div class="ud-left">
- 
-      <!-- AUDIT LOGS -->
-      <div class="ud-box">
-        <div class="ud-box-header">
-          <h2>Audit logs</h2>
-          <span class="ud-badge">last 10 entries</span>
+
+    <a href="{{ url_for('admin') }}" class="ud-back">← {{ t('btn_back_users') }}</a>
+
+    <div class="ud-user-card">
+        <div class="ud-avatar">{{ user.full_name[:2].upper() }}</div>
+        <div class="ud-user-info">
+            <div class="ud-user-name">{{ user.full_name }}</div>
+            <div class="ud-user-email">{{ user.email }}</div>
         </div>
-        <div class="ud-audit-head">
-          <span>Time</span>
-          <span>Action</span>
-          <span>IP address</span>
-        </div>
-        {% if logs %}
-          {% for log in logs %}
-          <div class="ud-audit-row">
-            <span class="ud-time">{{ log.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
-            <span class="ud-action ud-action-{{ log.action | lower | replace(' ', '-') | replace('(', '') | replace(')', '') }}">
-              {{ log.action }}
-            </span>
-            <span class="ud-ip">{{ log.ip_address }}</span>
-          </div>
-          {% endfor %}
-        {% else %}
-          <div class="ud-empty">No audit logs available</div>
-        {% endif %}
-      </div>
- 
-      <!-- PROTECTION RULES -->
-      <div class="ud-box">
-        <div class="ud-box-header">
-          <h2>Account protection rules</h2>
-        </div>
-        <form method="POST" action="{{ url_for('update_security_rules', user_id=user.id) }}">
-          <div class="ud-rule-row">
-            <div class="ud-rule-text">
-              <span class="ud-rule-label">Block after 3 failed logins</span>
-              <span class="ud-rule-sub">Temporarily locks the account for 15 minutes</span>
-            </div>
-            <label class="ud-toggle">
-              <input type="checkbox" name="block_after_failed_logins"
-                {% if user.block_after_failed_logins %}checked{% endif %}>
-              <span class="ud-toggle-slider"></span>
-            </label>
-          </div>
-          <div class="ud-rule-row">
-            <div class="ud-rule-text">
-              <span class="ud-rule-label">Notify on suspicious activity</span>
-              <span class="ud-rule-sub">Sends email notification on detected anomalies</span>
-            </div>
-            <label class="ud-toggle">
-              <input type="checkbox" name="notify_on_suspicious"
-                {% if user.notify_on_suspicious %}checked{% endif %}>
-              <span class="ud-toggle-slider"></span>
-            </label>
-          </div>
-          <button type="submit" class="ud-save-btn">Save changes</button>
-        </form>
         {% if user.blocked_until %}
-        <form method="POST" action="{{ url_for('unlock_user', user_id=user.id) }}">
-          <button type="submit" class="ud-unlock-btn">Unlock account</button>
-        </form>
-        {% endif %}
-      </div>
- 
-    </div>
- 
-    <!-- RIGHT COLUMN -->
-    <div class="ud-right">
- 
-      <!-- SECURITY MONITORING -->
-      <div class="ud-box">
-        <div class="ud-box-header">
-          <h2>Security monitoring</h2>
+        <div class="ud-blocked-badge">
+            ⚠ {{ t('admin_blocked_until') }} {{ user.blocked_until.strftime('%d.%m.%Y %H:%M') }}
         </div>
-        {% if alerts %}
-          {% for alert in alerts %}
-          <div class="ud-alert ud-alert-{{ alert.type }}">
-            <div class="ud-alert-icon">
-              {% if alert.type == 'ip' %}🌐
-              {% elif alert.type == 'ip_range' %}🌍
-              {% elif alert.type == 'time' %}🕐
-              {% elif alert.type == 'delete' %}🗑
-              {% else %}⚠{% endif %}
-            </div>
-            <div class="ud-alert-body">
-              <div class="ud-alert-msg">{{ alert.message }}</div>
-              <div class="ud-alert-detail">{{ alert.details }}</div>
-              {% if alert.location %}
-              <div class="ud-alert-location">
-                <span class="ud-location-icon">📍</span>
-                <span class="ud-location-text">
-                  {{ alert.location.city }}{% if alert.location.city and alert.location.region %}, {% endif %}{{ alert.location.region }}{% if alert.location.country %} · {{ alert.location.country }}{% endif %}
-                </span>
-              </div>
-              {% endif %}
-            </div>
-          </div>
-          {% endfor %}
-        {% else %}
-          <div class="ud-alert ud-alert-ok">
-            <div class="ud-alert-icon">✓</div>
-            <div>
-              <div class="ud-alert-msg">No suspicious activity</div>
-              <div class="ud-alert-detail">Everything looks normal</div>
-            </div>
-          </div>
         {% endif %}
-      </div>
- 
     </div>
-  </div>
+
+    <div class="ud-layout">
+
+        <div class="ud-left">
+
+            <!-- AUDIT LOGS -->
+            <div class="ud-box">
+                <div class="ud-box-header">
+                    <h2>{{ t('audit_title') }}</h2>
+                    <span class="ud-badge">{{ t('audit_subtitle') }}</span>
+                </div>
+                <div class="ud-audit-head">
+                    <span>{{ t('audit_time') }}</span>
+                    <span>{{ t('audit_action') }}</span>
+                    <span>{{ t('audit_ip') }}</span>
+                </div>
+                {% if logs %}
+                    {% for log in logs %}
+                    <div class="ud-audit-row">
+                        <span class="ud-time">{{ log.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                        <span class="ud-action ud-action-{{ log.action | lower | replace(' ', '-') | replace('(', '') | replace(')', '') }}">
+                            {% if log.action == 'Login (2FA)' %}{{ t('audit_login_2fa') }}
+                            {% elif log.action == 'Login' %}{{ t('audit_login') }}
+                            {% else %}{{ log.action }}{% endif %}
+                        </span>
+                        <span class="ud-ip">{{ log.ip_address }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="ud-empty">{{ t('monitoring_no_alerts') }}</div>
+                {% endif %}
+            </div>
+
+            <!-- PROTECTION RULES -->
+            <div class="ud-box">
+                <div class="ud-box-header">
+                    <h2>{{ t('security_rules_title') }}</h2>
+                </div>
+                <form method="POST" action="{{ url_for('update_security_rules', user_id=user.id) }}">
+                    <div class="ud-rule-row">
+                        <div class="ud-rule-text">
+                            <span class="ud-rule-label">{{ t('security_rule_block') }}</span>
+                            <span class="ud-rule-sub">{{ t('security_rule_block_desc') }}</span>
+                        </div>
+                        <label class="ud-toggle">
+                            <input type="checkbox" name="block_after_failed_logins"
+                                {% if user.block_after_failed_logins %}checked{% endif %}>
+                            <span class="ud-toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="ud-rule-row">
+                        <div class="ud-rule-text">
+                            <span class="ud-rule-label">{{ t('security_rule_notify') }}</span>
+                            <span class="ud-rule-sub">{{ t('security_rule_notify_desc') }}</span>
+                        </div>
+                        <label class="ud-toggle">
+                            <input type="checkbox" name="notify_on_suspicious"
+                                {% if user.notify_on_suspicious %}checked{% endif %}>
+                            <span class="ud-toggle-slider"></span>
+                        </label>
+                    </div>
+                    <button type="submit" class="ud-save-btn">{{ t('security_save') }}</button>
+                </form>
+                {% if user.blocked_until %}
+                <form method="POST" action="{{ url_for('unlock_user', user_id=user.id) }}">
+                    <button type="submit" class="ud-unlock-btn">{{ t('security_unlock') }}</button>
+                </form>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <div class="ud-right">
+
+            <!-- SECURITY MONITORING -->
+            <div class="ud-box">
+                <div class="ud-box-header">
+                    <h2>{{ t('monitoring_title') }}</h2>
+                </div>
+                {% if alerts %}
+                    {% for alert in alerts %}
+                    <div class="ud-alert ud-alert-{{ alert.type }}">
+                        <div class="ud-alert-icon">
+                            {% if alert.type == 'ip' %}🌐
+                            {% elif alert.type == 'ip_range' %}🌍
+                            {% elif alert.type == 'time' %}🕐
+                            {% elif alert.type == 'delete' %}🗑
+                            {% else %}⚠{% endif %}
+                        </div>
+                        <div class="ud-alert-body">
+                            <div class="ud-alert-msg">{{ alert.message }}</div>
+                            <div class="ud-alert-detail">{{ alert.details }}</div>
+                            {% if alert.location %}
+                            <div class="ud-alert-location">
+                                <span class="ud-location-icon">📍</span>
+                                <span class="ud-location-text">
+                                    {{ alert.location.city }}{% if alert.location.city and alert.location.region %}, {% endif %}{{ alert.location.region }}{% if alert.location.country %} · {{ alert.location.country }}{% endif %}
+                                </span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="ud-alert ud-alert-ok">
+                        <div class="ud-alert-icon">✓</div>
+                        <div>
+                            <div class="ud-alert-msg">{{ t('monitoring_no_alerts') }}</div>
+                            <div class="ud-alert-detail">{{ t('monitoring_normal') }}</div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
 </div>
 {% endblock %}

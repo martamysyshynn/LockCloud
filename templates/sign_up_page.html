@@ -1,103 +1,98 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="top-bar-content">
-  <div class="name-text">Cloud Storage Name</div>
-  <div class="buttons">
-    <a href="#" class="btn-language"><i class="fas fa-globe"></i></a>
-    <a href="{{ url_for('home') }}" class="btn-home">Home</a>
-  </div>
+    <div class="name-text">Cloud Storage Name</div>
+    <div class="buttons">
+        <a href="/set-lang/{{ 'uk' if current_lang == 'en' else 'en' }}" class="btn-language">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            {{ current_lang | upper }}
+        </a>
+        <a href="{{ url_for('home') }}" class="btn-home">{{ t('nav_home') }}</a>
+    </div>
 </div>
 
 <section class="signup">
-  <div class="signup-form">
-    <h1>Sign Up</h1>
-    <form method="POST">
+    <div class="signup-form">
+        <h1>{{ t('nav_sign_up') }}</h1>
+        <form method="POST">
+            <label>{{ t('signup_full_name') }}</label>
+            <input type="text" name="full_name" required>
 
-      <label>Full Name</label>
-      <input type="text" name="full_name" required>
+            <label>{{ t('signup_email') }}</label>
+            <input type="email" name="email" required>
 
-      <label>Email Address</label>
-      <input type="email" name="email" required>
+            <div class="signup-passwords">
+                <div>
+                    <label>{{ t('signup_password') }}</label>
+                    <input type="password" name="password" id="password" required>
+                    <ul class="pw-rules-list">
+                        <li id="r-len">{{ t('password_hint_length') }}</li>
+                        <li id="r-upper">{{ t('password_hint_upper') }}</li>
+                        <li id="r-lower">{{ t('password_hint_lower') }}</li>
+                        <li id="r-digit">{{ t('password_hint_digit') }}</li>
+                        <li id="r-special">{{ t('password_hint_special') }}</li>
+                    </ul>
+                </div>
+                <div>
+                    <label>{{ t('signup_confirm_password') }}</label>
+                    <input type="password" name="confirm_password" id="confirm_password" required>
+                    <p id="match-msg" class="match-msg"></p>
+                </div>
+            </div>
 
-      <div class="signup-passwords">
-        <div>
-          <label>Password</label>
-          <input type="password" name="password" id="password" required>
-          <ul class="pw-rules-list">
-            <li id="r-len">At least 8 characters</li>
-            <li id="r-upper">One uppercase letter</li>
-            <li id="r-lower">One lowercase letter</li>
-            <li id="r-digit">One number</li>
-            <li id="r-special">One special character</li>
-          </ul>
-        </div>
-        <div>
-          <label>Confirm Password</label>
-          <input type="password" name="confirm_password" id="confirm_password" required>
-          <p id="match-msg" class="match-msg"></p>
-        </div>
-      </div>
+            <div class="signup-2fa">
+                <span>{{ t('signup_two_factor') }}</span>
+                <input type="checkbox" name="two_factor">
+            </div>
 
-      <div class="signup-2fa">
-        <span>Two-Factor Authentication</span>
-        <input type="checkbox" name="two_factor">
-      </div>
+            <button type="submit" class="signup-btn">{{ t('signup_btn') }}</button>
+        </form>
 
-      <button type="submit" class="signup-btn">Sign Up</button>
-    </form>
+        <p class="signup-login">
+            {{ t('signup_have_account') }}
+            <a href="{{ url_for('signin') }}">{{ t('nav_sign_in') }}</a>
+        </p>
+    </div>
 
-    <p class="signup-login">
-      Already have an account?
-      <a href="{{ url_for('signin') }}">Sign In</a>
-    </p>
-  </div>
-
-  <div class="signup-image">
-    <img src="{{ url_for('static', filename='img/img3.png') }}" alt="Secure cloud">
-    <p>Create your secure cloud<br>storage account</p>
-  </div>
+    <div class="signup-image">
+        <img src="{{ url_for('static', filename='img/img3.png') }}" alt="Secure cloud">
+        <p>{{ t('signup_title') }}</p>
+    </div>
 </section>
 
 <script>
 const passwordInput = document.getElementById('password');
 const confirmInput = document.getElementById('confirm_password');
 const matchMsg = document.getElementById('match-msg');
-
 const rules = {
-  'r-len':     v => v.length >= 8,
-  'r-upper':   v => /[A-Z]/.test(v),
-  'r-lower':   v => /[a-z]/.test(v),
-  'r-digit':   v => /[0-9]/.test(v),
-  'r-special': v => /[!@#$%^&*(),.?":{}|<>]/.test(v),
+    'r-len':     v => v.length >= 8,
+    'r-upper':   v => /[A-Z]/.test(v),
+    'r-lower':   v => /[a-z]/.test(v),
+    'r-digit':   v => /[0-9]/.test(v),
+    'r-special': v => /[!@#$%^&*(),.?":{}|<>]/.test(v),
 };
-
 passwordInput.addEventListener('input', function () {
-  const v = this.value;
-  for (const [id, check] of Object.entries(rules)) {
-    const li = document.getElementById(id);
-    if (check(v)) {
-      li.classList.add('rule-ok');
-    } else {
-      li.classList.remove('rule-ok');
+    const v = this.value;
+    for (const [id, check] of Object.entries(rules)) {
+        const li = document.getElementById(id);
+        if (check(v)) li.classList.add('rule-ok');
+        else li.classList.remove('rule-ok');
     }
-  }
-  checkMatch();
+    checkMatch();
 });
-
 confirmInput.addEventListener('input', checkMatch);
-
 function checkMatch() {
-  if (!confirmInput.value) {
-    matchMsg.textContent = '';
-    return;
-  }
-  if (passwordInput.value === confirmInput.value) {
-    matchMsg.textContent = '✓ Passwords match';
-    matchMsg.style.color = '#4CAF50';
-  } else {
-    matchMsg.textContent = '✗ Passwords do not match';
-    matchMsg.style.color = '#e57373';
-  }
+    if (!confirmInput.value) { matchMsg.textContent = ''; return; }
+    if (passwordInput.value === confirmInput.value) {
+        matchMsg.textContent = '✓ {{ t("flash_passwords_no_match") | replace("не збігаються", "збігаються") }}';
+        matchMsg.style.color = '#4CAF50';
+    } else {
+        matchMsg.textContent = '✗ {{ t("flash_passwords_no_match") }}';
+        matchMsg.style.color = '#e57373';
+    }
 }
 </script>
 {% endblock %}

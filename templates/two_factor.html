@@ -2,11 +2,11 @@
 {% block content %}
 <section class="two-factor">
     <div class="two-factor-form">
-        <h1>Two-Factor Authentication</h1>
-        <p>Enter the verification code sent to your email</p>
+        <h1>{{ t('twofa_title') }}</h1>
+        <p>{{ t('twofa_desc') }}</p>
         <form method="POST">
-            <input type="text" name="otp" placeholder="Enter code" required>
-            <button type="submit">Verify</button>
+            <input type="text" name="otp" placeholder="{{ t('twofa_placeholder') }}" required>
+            <button type="submit">{{ t('twofa_btn') }}</button>
         </form>
     </div>
 </section>

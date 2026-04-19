@@ -1,43 +1,41 @@
 {% extends "base.html" %}
-
 {% block content %}
 <div class="top-bar-content">
     <div class="name-text">Cloud Storage Name</div>
     <div class="buttons">
-        <a href="#" class="btn-language"><i class="fas fa-globe"></i></a>
-        <a href="{{ url_for('home') }}" class="btn-home">Home</a>
+        <a href="/set-lang/{{ 'uk' if current_lang == 'en' else 'en' }}" class="btn-language">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            {{ current_lang | upper }}
+        </a>
+        <a href="{{ url_for('home') }}" class="btn-home">{{ t('nav_home') }}</a>
     </div>
 </div>
 
 <section class="signin">
     <div class="signin-form">
-        <h1>Sign In</h1>
-
+        <h1>{{ t('nav_sign_in') }}</h1>
         <form method="POST" action="{{ url_for('signin') }}">
-            <label>Email Address</label>
-            <input type="email" name="email" placeholder="Enter your email" required>
+            <label>{{ t('signup_email') }}</label>
+            <input type="email" name="email" placeholder="{{ t('signin_email') }}" required>
 
-            <label>Password</label>
+            <label>{{ t('signup_password') }}</label>
             <div class="signin-password">
-                <input type="password" name="password" placeholder="Enter password" required>
+                <input type="password" name="password" placeholder="{{ t('signin_password') }}" required>
             </div>
 
             <a href="{{ url_for('forgot_password') }}" class="signin-forgot">
-                Forgot password?
+                {{ t('signin_forgot') }}
             </a>
 
-
-            <!-- <label class="signin-remember">
-                <input type="checkbox" name="remember_me" checked>
-                Remember Me
-            </label> -->
-
-            <button type="submit" class="signin-btn">Sign In</button>
+            <button type="submit" class="signin-btn">{{ t('signin_btn') }}</button>
         </form>
-        
+
         <p class="signin-signup">
-            Don’t have an account?
-            <a href="{{ url_for('signup') }}">Sign Up</a>
+            {{ t('signin_no_account') }}
+            <a href="{{ url_for('signup') }}">{{ t('nav_sign_up') }}</a>
         </p>
     </div>
 
