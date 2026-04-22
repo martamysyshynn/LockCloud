@@ -201,5 +201,11 @@
   "shared_title": "Shared with me",
   "search_trash": "Search in trash...",
 
-  "flash_passwords_match": "Passwords match"
+  "flash_passwords_match": "Passwords match",
+
+  "alert_last_device": "Last login device",
+  "alert_multiple_devices": "Login from multiple device types",
+
+  "action_download": "Download"
+
 }

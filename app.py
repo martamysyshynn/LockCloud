@@ -5,6 +5,10 @@ from config import Config
 from flask_mail import Mail, Message
 import random
 import os
+import io
+import hashlib
+import hmac
+import secrets
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 import re
@@ -18,6 +22,80 @@ app = Flask(__name__)
 app.config.from_object(Config)
 mail = Mail(app)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# ─────────────────────────────────────────────
+# ШИФРУВАННЯ ФАЙЛІВ — лише вбудовані модулі Python
+# hashlib, hmac, secrets — нічого встановлювати не треба
+#
+# Алгоритм: XOR-keystream на основі PBKDF2+SHA-256 + HMAC-SHA256 для цілісності
+# Формат файлу на диску: [salt 32б][nonce 16б][hmac 32б][зашифровані дані]
+#
+# Додай у config.py один рядок:
+#   FILE_ENCRYPTION_KEY = 'будь-який-довгий-секретний-рядок'
+# ─────────────────────────────────────────────
+
+def _derive_key(master: str, salt: bytes, purpose: bytes) -> bytes:
+    """Виводить 32-байтний підключ через PBKDF2-HMAC-SHA256."""
+    return hashlib.pbkdf2_hmac(
+        'sha256',
+        master.encode() + purpose,
+        salt,
+        iterations=100_000
+    )
+
+def _keystream(key: bytes, nonce: bytes, length: int) -> bytes:
+    """Генерує keystream потрібної довжини через SHA-256(key+nonce+counter)."""
+    stream = bytearray()
+    counter = 0
+    while len(stream) < length:
+        block = hashlib.sha256(key + nonce + counter.to_bytes(8, 'big')).digest()
+        stream.extend(block)
+        counter += 1
+    return bytes(stream[:length])
+
+def encrypt_file(data: bytes) -> bytes:
+    """Шифрує байти. Повертає: salt(32) + nonce(16) + hmac(32) + ciphertext."""
+    master = app.config.get('FILE_ENCRYPTION_KEY', '')
+    if not master:
+        raise ValueError("FILE_ENCRYPTION_KEY не задано у config.py")
+
+    salt  = secrets.token_bytes(32)
+    nonce = secrets.token_bytes(16)
+
+    enc_key = _derive_key(master, salt, b'enc')
+    mac_key = _derive_key(master, salt, b'mac')
+
+    ks         = _keystream(enc_key, nonce, len(data))
+    ciphertext = bytes(a ^ b for a, b in zip(data, ks))
+    tag        = hmac.new(mac_key, salt + nonce + ciphertext, hashlib.sha256).digest()
+
+    return salt + nonce + tag + ciphertext
+
+def decrypt_file(data: bytes) -> bytes:
+    """Розшифровує байти. Кидає ValueError якщо файл пошкоджений або ключ невірний."""
+    if len(data) < 80:
+        raise ValueError("Файл пошкоджений або не зашифрований")
+
+    master = app.config.get('FILE_ENCRYPTION_KEY', '')
+    if not master:
+        raise ValueError("FILE_ENCRYPTION_KEY не задано у config.py")
+
+    salt       = data[:32]
+    nonce      = data[32:48]
+    stored_tag = data[48:80]
+    ciphertext = data[80:]
+
+    mac_key = _derive_key(master, salt, b'mac')
+    enc_key = _derive_key(master, salt, b'enc')
+
+    expected_tag = hmac.new(mac_key, salt + nonce + ciphertext, hashlib.sha256).digest()
+    if not hmac.compare_digest(stored_tag, expected_tag):
+        raise ValueError("HMAC не збігається — файл підмінений або ключ невірний")
+
+    ks = _keystream(enc_key, nonce, len(ciphertext))
+    return bytes(a ^ b for a, b in zip(ciphertext, ks))
+
+# ─────────────────────────────────────────────
 
 def _(key):
     return get_text(key, session.get('lang', 'en'))
@@ -164,8 +242,8 @@ def signin():
         session['role'] = user['role']
 
         cursor.execute(
-            "INSERT INTO audit_logs (user_id, action, ip_address) VALUES (%s, %s, %s)",
-            (user['id'], 'Login', request.remote_addr)
+            "INSERT INTO audit_logs (user_id, action, ip_address, user_agent) VALUES (%s, %s, %s, %s)",
+            (user['id'], 'Login', request.remote_addr, request.headers.get('User-Agent', ''))
         )
         connection.commit()
         cursor.close()
@@ -196,8 +274,8 @@ def two_factor():
 
             cursor_log = connection.cursor()
             cursor_log.execute(
-                "INSERT INTO audit_logs (user_id, action, ip_address) VALUES (%s, %s, %s)",
-                (user_id, 'Login (2FA)', request.remote_addr)
+                "INSERT INTO audit_logs (user_id, action, ip_address, user_agent) VALUES (%s, %s, %s, %s)",
+                (user_id, 'Login (2FA)', request.remote_addr, request.headers.get('User-Agent', ''))
             )
             connection.commit()
 
@@ -500,11 +578,16 @@ def upload_file():
         return redirect(url_for('storage'))
 
     filename = secure_filename(file.filename)
-    stored_name = f"{random.randint(100000,999999)}_{filename}"
+    stored_name = f"{random.randint(100000,999999)}_{filename}.enc"  # .enc — маркер шифрування
 
     user_folder = get_user_upload_folder(session['user_id'])
     file_path = os.path.join(user_folder, stored_name)
-    file.save(file_path)
+
+    raw_data = file.read()
+    encrypted_data = encrypt_file(raw_data)
+
+    with open(file_path, 'wb') as f:
+        f.write(encrypted_data)
 
     connection = get_db_connection()
     cursor = connection.cursor()
@@ -513,7 +596,7 @@ def upload_file():
         INSERT INTO files (filename, stored_name, size, user_id, folder_id)
         VALUES (%s, %s, %s, %s, %s)
         """,
-        (filename, stored_name, os.path.getsize(file_path), session['user_id'], folder_id)
+        (filename, stored_name, len(raw_data), session['user_id'], folder_id)
     )
     connection.commit()
     cursor.close()
@@ -613,10 +696,25 @@ def open_file(file_id):
 
     file_path = os.path.join(
         app.config['UPLOAD_FOLDER'],
-        str(session['user_id']),
+        str(file['user_id']),
         file['stored_name']
     )
-    return send_file(file_path)
+
+    with open(file_path, 'rb') as f:
+        encrypted_data = f.read()
+
+    try:
+        decrypted_data = decrypt_file(encrypted_data)
+    except Exception:
+        flash("Помилка розшифрування файлу.", "danger")
+        return redirect(url_for('storage'))
+
+    # Розшифрований файл передається через RAM — на диск не записується
+    return send_file(
+        io.BytesIO(decrypted_data),
+        download_name=file['filename'],
+        as_attachment=False
+    )
 
 @app.route('/storage/delete-folder/<int:folder_id>', methods=['POST'])
 def delete_folder(folder_id):
@@ -826,6 +924,59 @@ def share_file(file_id):
     flash(_('flash_file_shared'), "success")
     return redirect(url_for('storage'))
 
+@app.route('/storage/download/<int:file_id>')
+def download_file(file_id):
+    if 'user_id' not in session:
+        return redirect(url_for('signin'))
+
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    # перевіряємо чи файл належить юзеру АБО поділений з ним
+    cursor.execute(
+        "SELECT * FROM files WHERE id=%s AND user_id=%s",
+        (file_id, session['user_id'])
+    )
+    file = cursor.fetchone()
+
+    if not file:
+        # перевіряємо shared файли
+        cursor.execute("""
+            SELECT files.* FROM files
+            JOIN shared_files ON files.id = shared_files.file_id
+            WHERE files.id=%s AND shared_files.shared_with_user_id=%s
+        """, (file_id, session['user_id']))
+        file = cursor.fetchone()
+
+    cursor.close()
+    connection.close()
+
+    if not file:
+        flash(_('flash_file_not_found'), "danger")
+        return redirect(url_for('storage'))
+
+    file_path = os.path.join(
+        app.config['UPLOAD_FOLDER'],
+        str(file['user_id']),  # власник файлу
+        file['stored_name']
+    )
+
+    with open(file_path, 'rb') as f:
+        encrypted_data = f.read()
+
+    try:
+        decrypted_data = decrypt_file(encrypted_data)
+    except Exception:
+        flash("Помилка розшифрування файлу.", "danger")
+        return redirect(url_for('storage'))
+
+    return send_file(
+        io.BytesIO(decrypted_data),
+        download_name=file['filename'],
+        as_attachment=True,
+        mimetype='application/octet-stream'
+    )
+
 @app.route('/shared')
 def shared():
     if 'user_id' not in session:
@@ -970,12 +1121,63 @@ def get_ip_location(ip):
         pass
     return None
 
+def parse_device(user_agent):
+    if not user_agent:
+        return {"type": "unknown", "label": "Unknown", "icon": "💻", "browser": "Unknown browser", "display": "Unknown"}
+
+    ua = user_agent.lower()
+
+    if any(x in ua for x in ['iphone', 'android', 'mobile', 'blackberry', 'windows phone']):
+        device_type = "mobile"
+        icon = "📱"
+        if 'iphone' in ua:
+            label = "iPhone"
+        elif 'android' in ua:
+            label = "Android"
+        else:
+            label = "Mobile"
+    elif any(x in ua for x in ['ipad', 'tablet']):
+        device_type = "tablet"
+        icon = "📱"
+        label = "Tablet"
+    else:
+        device_type = "desktop"
+        icon = "💻"
+        if 'windows' in ua:
+            label = "Windows PC"
+        elif 'macintosh' in ua or 'mac os' in ua:
+            label = "Mac"
+        elif 'linux' in ua:
+            label = "Linux"
+        else:
+            label = "Desktop"
+
+    browser = "Unknown browser"
+    if 'edg/' in ua or 'edge/' in ua:
+        browser = "Edge"
+    elif 'chrome/' in ua and 'chromium' not in ua:
+        browser = "Chrome"
+    elif 'firefox/' in ua:
+        browser = "Firefox"
+    elif 'safari/' in ua and 'chrome' not in ua:
+        browser = "Safari"
+    elif 'opera' in ua or 'opr/' in ua:
+        browser = "Opera"
+
+    return {
+        "type": device_type,
+        "label": label,
+        "browser": browser,
+        "icon": icon,
+        "display": f"{label} · {browser}"
+    }
+
 def analyze_security(user_id, notify=True):
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
 
     cursor.execute("""
-        SELECT action, ip_address, created_at
+        SELECT action, ip_address, created_at, user_agent
         FROM audit_logs
         WHERE user_id=%s
         ORDER BY created_at DESC
@@ -987,6 +1189,31 @@ def analyze_security(user_id, notify=True):
 
     if not logs:
         return alerts
+
+    login_logs = [l for l in logs if l['action'] in ['Login', 'Login (2FA)']]
+    if login_logs and login_logs[0].get('user_agent'):
+        last_device = parse_device(login_logs[0]['user_agent'])
+        alerts.append({
+            "type": "device_info",
+            "message": _('alert_last_device'),
+            "details": last_device['display'],
+            "location": None,
+            "device": last_device
+        })
+
+    device_types = set()
+    for l in login_logs:
+        if l.get('user_agent'):
+            device_types.add(parse_device(l['user_agent'])['type'])
+
+    if len(device_types) > 1:
+        alerts.append({
+            "type": "device",
+            "message": _('alert_multiple_devices'),
+            "details": ", ".join(device_types),
+            "location": None,
+            "device": None
+        })
 
     last_ip = logs[0]['ip_address']
     location = get_ip_location(last_ip)
@@ -1063,7 +1290,7 @@ def create_notification(user_id, message):
 
 @app.route('/set-lang/<lang>')
 def set_lang(lang):
-    if lang in ('en', 'uk'):
+    if lang in ('en', 'ua'):
         session['lang'] = lang
     return redirect(request.referrer or url_for('home'))
 

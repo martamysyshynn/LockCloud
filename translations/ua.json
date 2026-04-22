@@ -189,7 +189,7 @@
 
   "confirm_email_title": "Підтвердіть електронну адресу",
   "confirm_email_desc": "Ми надіслали код підтвердження на вашу нову електронну адресу. Введіть його нижче для підтвердження змін.",
-  "confirm_email_placeholder": "Введіть код підтвердження",
+  "confirm_email_placeholder": "Віть код підтвердження",
   "confirm_email_btn": "Підтвердити адресу",
 
   "reset_title": "Скидання пароля",
@@ -201,5 +201,11 @@
   "shared_title": "Спільні зі мною",
   "search_trash": "Пошук у кошику...",
 
-  "flash_passwords_match": "Паролі збігаються"
+  "flash_passwords_match": "Паролі збігаються",
+
+  "alert_last_device": "Пристрій останнього входу",
+  "alert_multiple_devices": "Вхід з кількох типів пристроїв",
+
+  "action_download": "Завантажити"
+
 }
