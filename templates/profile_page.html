@@ -38,32 +38,29 @@
 
     <section class="profile-card">
         <h1>{{ t('nav_profile') }}</h1>
-        <form method="post" action="{{ url_for('update_phone') }}">
-            <div class="profile-fields-grid">
-                <div class="profile-field">
-                    <label>{{ t('admin_name') }}</label>
-                    <input type="text" value="{{ user.full_name.split(' ')[0] }}" disabled>
-                </div>
-                <div class="profile-field">
-                    <label>{{ t('admin_surname') }}</label>
-                    <input type="text"
-                        value="{{ user.full_name.split(' ')[1] if user.full_name.split(' ')|length > 1 else '' }}"
-                        disabled>
-                </div>
-                <div class="profile-field profile-field-full">
-                    <label>{{ t('profile_email') }}</label>
-                    <input type="email" value="{{ user.email }}" disabled>
-                </div>
-                <div class="profile-field profile-field-full">
-                    <label>{{ t('profile_phone') }}</label>
-                    <input type="text"
-                        name="phone"
-                        value="{{ user.phone if user.phone else '' }}"
-                        placeholder="{{ t('profile_add_phone') }}">
-                </div>
+        <div class="profile-fields-grid">
+            <div class="profile-field">
+                <label>{{ t('admin_name') }}</label>
+                <input type="text" value="{{ user.full_name.split(' ')[0] }}" disabled>
             </div>
-            <button class="profile-save-btn" type="submit">{{ t('action_save') }}</button>
-        </form>
+            <div class="profile-field">
+                <label>{{ t('admin_surname') }}</label>
+                <input type="text"
+                       value="{{ user.full_name.split(' ')[1] if user.full_name.split(' ')|length > 1 else '' }}"
+                       disabled>
+            </div>
+            <div class="profile-field profile-field-full">
+                <label>{{ t('profile_email') }}</label>
+                <input type="email" value="{{ user.email }}" disabled>
+            </div>
+            <div class="profile-field profile-field-full">
+                <label>{{ t('profile_phone') }}</label>
+                <input type="text"
+                       value="{{ user.phone if user.phone else '' }}"
+                       placeholder="{{ t('profile_add_phone') }}"
+                       disabled>
+            </div>
+        </div>
     </section>
 </div>
 {% endblock %}

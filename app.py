@@ -23,19 +23,7 @@ app.config.from_object(Config)
 mail = Mail(app)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# ─────────────────────────────────────────────
-# ШИФРУВАННЯ ФАЙЛІВ — лише вбудовані модулі Python
-# hashlib, hmac, secrets — нічого встановлювати не треба
-#
-# Алгоритм: XOR-keystream на основі PBKDF2+SHA-256 + HMAC-SHA256 для цілісності
-# Формат файлу на диску: [salt 32б][nonce 16б][hmac 32б][зашифровані дані]
-#
-# Додай у config.py один рядок:
-#   FILE_ENCRYPTION_KEY = 'будь-який-довгий-секретний-рядок'
-# ─────────────────────────────────────────────
-
 def _derive_key(master: str, salt: bytes, purpose: bytes) -> bytes:
-    """Виводить 32-байтний підключ через PBKDF2-HMAC-SHA256."""
     return hashlib.pbkdf2_hmac(
         'sha256',
         master.encode() + purpose,
@@ -44,7 +32,6 @@ def _derive_key(master: str, salt: bytes, purpose: bytes) -> bytes:
     )
 
 def _keystream(key: bytes, nonce: bytes, length: int) -> bytes:
-    """Генерує keystream потрібної довжини через SHA-256(key+nonce+counter)."""
     stream = bytearray()
     counter = 0
     while len(stream) < length:
@@ -54,7 +41,6 @@ def _keystream(key: bytes, nonce: bytes, length: int) -> bytes:
     return bytes(stream[:length])
 
 def encrypt_file(data: bytes) -> bytes:
-    """Шифрує байти. Повертає: salt(32) + nonce(16) + hmac(32) + ciphertext."""
     master = app.config.get('FILE_ENCRYPTION_KEY', '')
     if not master:
         raise ValueError("FILE_ENCRYPTION_KEY не задано у config.py")
@@ -72,7 +58,6 @@ def encrypt_file(data: bytes) -> bytes:
     return salt + nonce + tag + ciphertext
 
 def decrypt_file(data: bytes) -> bytes:
-    """Розшифровує байти. Кидає ValueError якщо файл пошкоджений або ключ невірний."""
     if len(data) < 80:
         raise ValueError("Файл пошкоджений або не зашифрований")
 
@@ -95,7 +80,6 @@ def decrypt_file(data: bytes) -> bytes:
     ks = _keystream(enc_key, nonce, len(ciphertext))
     return bytes(a ^ b for a, b in zip(ciphertext, ks))
 
-# ─────────────────────────────────────────────
 
 def _(key):
     return get_text(key, session.get('lang', 'en'))
@@ -332,6 +316,30 @@ def update_phone():
 
     flash(_('flash_phone_updated'), "success")
     return redirect(url_for('profile'))
+
+@app.route('/profile/update-name', methods=['POST'])
+def update_name():
+    if 'user_id' not in session:
+        return redirect(url_for('signin'))
+
+    first_name = request.form.get('first_name', '').strip()
+    last_name = request.form.get('last_name', '').strip()
+    full_name = f"{first_name} {last_name}".strip()
+    phone = request.form.get('phone')
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute(
+        "UPDATE users SET full_name=%s, phone=%s WHERE id=%s",
+        (full_name, phone if phone else None, session['user_id'])
+    )
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    session['user_name'] = full_name
+    flash(_('flash_name_updated'), "success")
+    return redirect(url_for('settings'))
 
 @app.route('/notifications')
 def notifications():
@@ -578,7 +586,7 @@ def upload_file():
         return redirect(url_for('storage'))
 
     filename = secure_filename(file.filename)
-    stored_name = f"{random.randint(100000,999999)}_{filename}.enc"  # .enc — маркер шифрування
+    stored_name = f"{random.randint(100000,999999)}_{filename}.enc"   
 
     user_folder = get_user_upload_folder(session['user_id'])
     file_path = os.path.join(user_folder, stored_name)
@@ -709,7 +717,6 @@ def open_file(file_id):
         flash("Помилка розшифрування файлу.", "danger")
         return redirect(url_for('storage'))
 
-    # Розшифрований файл передається через RAM — на диск не записується
     return send_file(
         io.BytesIO(decrypted_data),
         download_name=file['filename'],
@@ -932,7 +939,6 @@ def download_file(file_id):
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
 
-    # перевіряємо чи файл належить юзеру АБО поділений з ним
     cursor.execute(
         "SELECT * FROM files WHERE id=%s AND user_id=%s",
         (file_id, session['user_id'])
@@ -940,7 +946,6 @@ def download_file(file_id):
     file = cursor.fetchone()
 
     if not file:
-        # перевіряємо shared файли
         cursor.execute("""
             SELECT files.* FROM files
             JOIN shared_files ON files.id = shared_files.file_id
@@ -957,7 +962,7 @@ def download_file(file_id):
 
     file_path = os.path.join(
         app.config['UPLOAD_FOLDER'],
-        str(file['user_id']),  # власник файлу
+        str(file['user_id']),  
         file['stored_name']
     )
 
@@ -1172,6 +1177,7 @@ def parse_device(user_agent):
         "display": f"{label} · {browser}"
     }
 
+last_ip = '8.8.8.8'
 def analyze_security(user_id, notify=True):
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
@@ -1215,7 +1221,7 @@ def analyze_security(user_id, notify=True):
             "device": None
         })
 
-    last_ip = logs[0]['ip_address']
+    # last_ip = logs[0]['ip_address']
     location = get_ip_location(last_ip)
     for log in logs[1:]:
         if log['ip_address'] != last_ip:

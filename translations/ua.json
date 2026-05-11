@@ -74,7 +74,7 @@
 
   "profile_email": "Електронна пошта",
   "profile_phone": "Номер телефону",
-  "profile_add_phone": "Додати номер телефону",
+  "profile_add_phone": "Номер телефону",
 
   "settings_title": "Налаштування",
   "settings_security": "Безпека",
@@ -206,6 +206,9 @@
   "alert_last_device": "Пристрій останнього входу",
   "alert_multiple_devices": "Вхід з кількох типів пристроїв",
 
-  "action_download": "Завантажити"
+  "action_download": "Завантажити",
+
+  "flash_name_updated": "Ім'я успішно оновлено",
+  "settings_profile": "Профіль"
 
 }

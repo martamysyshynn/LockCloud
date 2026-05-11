@@ -74,7 +74,7 @@
 
   "profile_email": "Email",
   "profile_phone": "Phone number",
-  "profile_add_phone": "Add phone number",
+  "profile_add_phone": "Phone number",
 
   "settings_title": "Settings",
   "settings_security": "Security",
@@ -206,6 +206,9 @@
   "alert_last_device": "Last login device",
   "alert_multiple_devices": "Login from multiple device types",
 
-  "action_download": "Download"
+  "action_download": "Download",
+
+  "flash_name_updated": "Name updated successfully",
+  "settings_profile": "Profile"
 
 }

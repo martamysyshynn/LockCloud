@@ -2,15 +2,16 @@
 {% block content %}
 <div class="top-bar-content">
     <div class="name-text">{{ session.user_name }}</div>
-    <form method="GET" action="/storage" class="search-box">
+    <div class="search-box">
         <i class="fa-solid fa-magnifying-glass"></i>
         <input
             type="text"
-            name="search"
+            id="search-input"
             placeholder="{{ t('storage_search') }}"
             value="{{ request.args.get('search', '') }}"
+            oninput="liveSearch(this.value)"
         >
-    </form>
+    </div>
     <div class="top-icons">
         <a href="/set-lang/{{ 'ua' if current_lang == 'en' else 'en' }}" class="btn-language">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -92,8 +93,8 @@
         <h1>{{ t('storage_title') }}</h1>
 
         {% if folders %}
-        <div class="section-label">{{ t('storage_folders') }}</div>
-        <div class="folders-grid">
+        <div class="section-label" id="folders-label">{{ t('storage_folders') }}</div>
+        <div class="folders-grid" id="folders-grid">
             {% for folder in folders %}
             <div class="folder-card">
                 <button class="folder-more" onclick="toggleMenu('menu-folder-{{ folder.id }}', event)">
@@ -117,9 +118,7 @@
         </div>
         {% endif %}
 
-        {% if files %}
-        <div class="section-label" style="margin-top: 24px;">{{ t('storage_files') }}</div>
-        {% endif %}
+        <div class="section-label" id="files-label" style="margin-top: 24px; {% if not files %}display:none;{% endif %}">{{ t('storage_files') }}</div>
 
         <div class="file-list">
             {% for file in files %}
@@ -159,7 +158,7 @@
                         <input type="email" name="email" placeholder="{{ t('signup_email') }}" required>
                         <button type="submit">{{ t('action_share') }}</button>
                     </form>
-                    <a href="#" class="close-share">{{ t('twofa_placeholder') }}</a>
+                    <a href="#" class="close-share">{{ t('cancel') }}</a>
                 </div>
             </div>
             {% endfor %}
@@ -168,6 +167,38 @@
 </div>
 
 <script>
+function liveSearch(query) {
+    const q = query.trim().toLowerCase();
+
+    let visibleFolders = 0;
+    document.querySelectorAll('.folder-card').forEach(card => {
+        const nameEl = card.querySelector('.folder-name');
+        if (!nameEl) return;
+        const name = nameEl.textContent.trim().toLowerCase();
+        const visible = name.includes(q);
+        card.style.display = visible ? '' : 'none';
+        if (visible) visibleFolders++;
+    });
+
+    const foldersLabel = document.getElementById('folders-label');
+    const foldersGrid = document.getElementById('folders-grid');
+    if (foldersLabel) foldersLabel.style.display = visibleFolders > 0 ? '' : 'none';
+    if (foldersGrid) foldersGrid.style.display = visibleFolders > 0 ? '' : 'none';
+
+    let visibleFiles = 0;
+    document.querySelectorAll('.file-row').forEach(row => {
+        const nameEl = row.querySelector('.file-row-left span');
+        if (!nameEl) return;
+        const name = nameEl.textContent.trim().toLowerCase();
+        const visible = name.includes(q);
+        row.style.display = visible ? '' : 'none';
+        if (visible) visibleFiles++;
+    });
+
+    const filesLabel = document.getElementById('files-label');
+    if (filesLabel) filesLabel.style.display = visibleFiles > 0 ? '' : 'none';
+}
+
 function toggleCreateMenu() {
     document.getElementById('create-wrapper').classList.toggle('open');
     hideFolderForm();

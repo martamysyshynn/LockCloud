@@ -801,11 +801,24 @@ body {
 }
 
 /* GRID */
+
+.settings-content h2:first-of-type {
+    margin-top: 0;
+}
+
 .settings-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); /* ← замість 1fr 1fr */
-  gap: 20px;
-  min-width: 0; /* ← додати */
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 20px;
+    min-width: 0;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #2A2A2A;
+    margin-bottom: 10px;
+}
+
+.settings-grid:last-of-type {
+    border-bottom: none;
+    padding-bottom: 0;
 }
 
 /* FIELD */
@@ -862,7 +875,7 @@ body {
     font-weight: bold;
     cursor: pointer;
     transition: 0.15s;
-    width: fit-content;
+    width: 100%;
 }
 
 .settings-btn:hover {
@@ -1024,6 +1037,7 @@ body {
 }
 
 .folder-more {
+    opacity: 1;
     position: absolute;
     top: 10px;
     right: 10px;
@@ -1038,7 +1052,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0;
     transition: opacity 0.15s;
 }
 
@@ -1051,6 +1064,11 @@ body {
     color: #f07070;
 }
 
+.folder-inline input[type="text"] {
+    box-sizing: border-box;
+    width: 100%;
+    /* інші стилі вже є */
+}
 
 .name-text {
     color: #D09EF2;
@@ -1229,9 +1247,14 @@ body {
   width: 100%;
 }
 .folder-inline input:focus { border-color: #D09EF2; }
-.folder-inline-row { display: flex; gap: 8px; margin-top: 4px; }
+
+.folder-inline-row { 
+    display: flex; 
+    gap: 8px; 
+    margin-top: 4px; 
+}
+
 .folder-inline-row button {
-  flex: 1;
   padding: 9px;
   border-radius: 12px;
   border: none;

@@ -35,6 +35,29 @@
     <section class="settings-content">
         <h1>{{ t('settings_title') }}</h1>
 
+        <h2>{{ t('settings_profile') }}</h2>
+        <form method="POST" action="{{ url_for('update_name') }}" class="settings-grid">
+            <div class="settings-field">
+                <label>{{ t('admin_name') }}</label>
+                <input type="text" name="first_name"
+                       value="{{ user.full_name.split(' ')[0] }}" required>
+            </div>
+            <div class="settings-field">
+                <label>{{ t('admin_surname') }}</label>
+                <input type="text" name="last_name"
+                       value="{{ user.full_name.split(' ')[1] if user.full_name.split(' ')|length > 1 else '' }}">
+            </div>
+            <div class="settings-field settings-field-full">
+                <label>{{ t('profile_phone') }}</label>
+                <input type="text" name="phone"
+                       value="{{ user.phone if user.phone else '' }}"
+                       placeholder="{{ t('profile_add_phone') }}">
+            </div>
+            <div class="settings-field settings-field-full">
+                <button type="submit" class="settings-btn">{{ t('action_save') }}</button>
+            </div>
+        </form>
+
         <h2>{{ t('settings_security') }}</h2>
         <form method="POST" action="/settings/change-password" class="settings-grid">
             <div class="settings-field">
@@ -72,6 +95,7 @@
                 <button type="submit" class="settings-btn">{{ t('settings_change_email') }}</button>
             </div>
         </form>
+
     </section>
 </div>
 
