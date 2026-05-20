@@ -27,7 +27,6 @@
   "security_smart": "Smart protection: suspicious behavior triggers temporary restrictions and identity confirmation",
 
   "footer_contact": "Contact Us",
-  "footer_privacy": "Privacy Policy",
   "footer_rights": "2026 All rights reserved",
 
   "signup_title": "Create your secure cloud storage account",
@@ -108,6 +107,8 @@
   "audit_ip": "IP ADDRESS",
   "audit_login_2fa": "Login (2FA)",
   "audit_login": "Login",
+  "audit_delete_file": "Delete file",
+  "audit_delete_folder": "Delete folder",
 
   "security_rules_title": "Account protection rules",
   "security_rule_block": "Block after 3 failed logins",

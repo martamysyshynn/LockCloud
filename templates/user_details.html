@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="top-bar-content">
-    <div class="name-text">NAME</div>
+    <div class="name-text">LockCloud</div>
     <div class="buttons">
         <a href="/set-lang/{{ 'ua' if current_lang == 'en' else 'en' }}" class="btn-language">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -49,9 +49,11 @@
                     {% for log in logs %}
                     <div class="ud-audit-row">
                         <span class="ud-time">{{ log.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
-                        <span class="ud-action ud-action-{{ log.action | lower | replace(' ', '-') | replace('(', '') | replace(')', '') }}">
+                       <span class="ud-action ud-action-{{ log.action | lower | replace(' ', '-') | replace('(', '') | replace(')', '') }}">
                             {% if log.action == 'Login (2FA)' %}{{ t('audit_login_2fa') }}
                             {% elif log.action == 'Login' %}{{ t('audit_login') }}
+                            {% elif log.action == 'Delete file' %}{{ t('audit_delete_file') }}
+                            {% elif log.action == 'Delete folder' %}{{ t('audit_delete_folder') }}
                             {% else %}{{ log.action }}{% endif %}
                         </span>
                         <span class="ud-ip">{{ log.ip_address }}</span>

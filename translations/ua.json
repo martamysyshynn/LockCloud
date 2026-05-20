@@ -27,7 +27,6 @@
   "security_smart": "Розумний захист: підозріла поведінка викликає тимчасові обмеження та підтвердження особи",
 
   "footer_contact": "Зв'язатися з нами",
-  "footer_privacy": "Політика конфіденційності",
   "footer_rights": "2026 Всі права захищені",
 
   "signup_title": "Створіть безпечний акаунт хмарного сховища",
@@ -36,7 +35,7 @@
   "signup_password": "Пароль",
   "signup_confirm_password": "Підтвердіть пароль",
   "signup_have_account": "Вже маєте акаунт?",
-  "signup_two_factor": "Двофакторна аутентифікація",
+  "signup_two_factor": "Двофакторна автентифікація",
   "signup_btn": "Зареєструватися",
   "password_hint_length": "Мінімум 8 символів",
   "password_hint_upper": "Одна велика літера",
@@ -108,6 +107,8 @@
   "audit_ip": "IP-АДРЕСА",
   "audit_login_2fa": "Вхід (2FA)",
   "audit_login": "Вхід",
+  "audit_delete_file": "Видалення файлу",
+  "audit_delete_folder": "Видалення папки",
 
   "security_rules_title": "Правила захисту акаунту",
   "security_rule_block": "Блокувати після 3 невдалих спроб входу",

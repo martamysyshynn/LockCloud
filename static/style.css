@@ -11,8 +11,8 @@ body {
 }
 
 .page-wrapper {
-    margin-top: 73px;      /* відступ від top bar */
-    padding-bottom: 73px;  /* щоб контент не ховався за footer */
+    margin-top: 73px;      
+    padding-bottom: 73px;  
     min-height: calc(100vh - 146px);
     box-sizing: border-box;
 }
@@ -189,7 +189,6 @@ body {
     font-family: 'Itim', sans-serif;
 }
 
-/* HERO */
 .hero {
     display: flex;
     align-items: center;
@@ -234,7 +233,6 @@ body {
     opacity: 0.88;
 }
 
-/* RIGHT */
 .hero-image img {
     margin-top: -150px;
     max-width: 500px;
@@ -339,7 +337,6 @@ body {
     width: 220px;
 }
 
-/* SIGN UP PAGE */
 .signup {
     display: flex;
     justify-content: space-between;
@@ -437,7 +434,6 @@ body {
     margin-bottom: 20px;
 }
 
-/* SIGN IN PAGE */
 .signin {
     display: flex;
     justify-content: space-between;
@@ -532,7 +528,6 @@ body {
     width: 400px;
 }
 
-/* TWO-FACTOR PAGE */
 .two-factor {
     display: flex;
     justify-content: center;
@@ -590,8 +585,6 @@ body {
 .two-factor-form button:hover {
     opacity: 0.9;
 }
-
-/* PROFILE PAGE  */
 
 .profile-layout {
     display: flex;
@@ -772,7 +765,6 @@ body {
 .profile-save-btn:hover {
     opacity: 0.88;
 }
-/* ===== SETTINGS (MATCH PROFILE) ===== */
 
 .settings-content {
     flex: 1;
@@ -783,14 +775,12 @@ body {
     padding: 50px 60px;
 }
 
-/* TITLE */
 .settings-content h1 {
     color: #D09EF2;
     font-size: 36px;
     margin-bottom: 36px;
 }
 
-/* SECTION TITLE */
 .settings-content h2 {
     font-size: 12px;
     color: #888;
@@ -799,8 +789,6 @@ body {
     margin: 30px 0 15px;
     box-sizing: border-box;
 }
-
-/* GRID */
 
 .settings-content h2:first-of-type {
     margin-top: 0;
@@ -821,7 +809,6 @@ body {
     padding-bottom: 0;
 }
 
-/* FIELD */
 .settings-field {
     display: flex;
     flex-direction: column;
@@ -834,7 +821,6 @@ body {
     grid-column: 1 / -1;
 }
 
-/* LABEL */
 .settings-field label {
     font-size: 12px;
     color: #888;
@@ -842,7 +828,6 @@ body {
     letter-spacing: 0.06em;
 }
 
-/* INPUT */
 .settings-field input {
   width: 100%;
   box-sizing: border-box; /* ← додати */
@@ -862,7 +847,6 @@ body {
     background-color: #1B1A1B;
 }
 
-/* BUTTON */
 .settings-btn {
     margin-top: 10px;
     background-color: #D09EF2;
@@ -882,7 +866,6 @@ body {
     opacity: 0.88;
 }
 
-/* FORGOT / RESET PASSWORD */
 .forgot-password {
     display: flex;
     justify-content: center;
@@ -970,8 +953,6 @@ body {
 .back-to-login:hover {
     opacity: 0.8;
 }
-
-/* ===== STORAGE PAGE ===== */
 
 .storage-layout {
     display: flex;
@@ -1127,7 +1108,6 @@ body {
     opacity: 0.85;
 }
 
-/* SIDEBAR */
 .storage-sidebar {
     width: 260px;
     padding: 30px;
@@ -1226,7 +1206,6 @@ body {
 
 .drop-divider { height: 1px; background: #2A2A2A; margin: 4px 16px; }
 
-/* Folder inline form */
 .folder-inline {
   display: none;
   flex-direction: column;
@@ -1265,7 +1244,6 @@ body {
 .fi-ok  { background: #D09EF2; color: #020002; }
 .fi-cancel { background: #2A2A2A; color: #D09EF2; }
 
-/* Drag & drop zone */
 .dnd-zone {
   margin: 6px 12px 12px;
   border: 2px dashed #3A3A3A;
@@ -1447,8 +1425,6 @@ body {
     color: #D09EF2;
 }
 
-/* DELETE BUTTON IN FILE ROW */
-
 .file-row {
     justify-content: space-between;
 }
@@ -1490,7 +1466,6 @@ body {
     color: #fff;             
 }
 
-/* POPUP */
 .share-popup {
     position: fixed;
     top: 0;
@@ -1637,7 +1612,6 @@ body {
   background: #2A2A2A;
   margin: 4px 0;
 }
-/* ADMIN PAGE */
 
 .btn-signout {
     text-decoration: none;
@@ -1658,8 +1632,6 @@ body {
     opacity: 0.9;
 }
 
-/* ===== ADMIN PAGE REDESIGN ===== */
-
 .admin-page {
     padding: 32px 60px 60px;
     max-width: 1200px;
@@ -1679,7 +1651,6 @@ body {
     margin: 0;
 }
 
-/* STATS */
 .admin-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -1714,7 +1685,6 @@ body {
     margin-top: 6px;
 }
 
-/* USERS TABLE */
 .users-box {
     background: #1B1A1B;
     border-radius: 20px;
@@ -1846,8 +1816,6 @@ body {
     transition: color 0.15s;
 }
 
-/* ===== USER DETAILS PAGE ===== */
-
 .ud-page {
     padding: 30px 60px 60px;
     max-width: 1200px;
@@ -1865,7 +1833,6 @@ body {
 }
 .ud-back:hover { opacity: 1; }
 
-/* USER HEADER */
 .ud-user-card {
     background: #1B1A1B;
     border-radius: 20px;
@@ -1914,7 +1881,6 @@ body {
     white-space: nowrap;
 }
 
-/* LAYOUT */
 .ud-layout {
     display: flex;
     gap: 24px;
@@ -1937,7 +1903,6 @@ body {
     min-width: 0;
 }
 
-/* BOX */
 .ud-box {
     background: #1B1A1B;
     border-radius: 20px;
@@ -1966,7 +1931,6 @@ body {
     border-radius: 20px;
 }
 
-/* AUDIT */
 .ud-audit-head {
     display: grid;
     grid-template-columns: 150px 1fr 130px;
@@ -2005,7 +1969,6 @@ body {
     width: fit-content;
 }
 
-/* action color variants */
 .ud-action-login             { background: #1a2535; color: #b39dff; }
 .ud-action-login-2fa         { background: #1e1a35; color: #b39dff; }
 .ud-action-delete-file,
@@ -2023,7 +1986,6 @@ body {
     font-size: 14px;
 }
 
-/* RULES */
 .ud-rule-row {
     display: flex;
     align-items: center;
@@ -2048,7 +2010,6 @@ body {
     font-size: 12px;
 }
 
-/* TOGGLE */
 .ud-toggle {
     position: relative;
     width: 44px;
@@ -2124,7 +2085,6 @@ body {
     color: #020002;
 }
 
-/* ALERTS */
 .ud-alert {
     display: flex;
     align-items: flex-start;
@@ -2163,8 +2123,6 @@ body {
     font-size: 12px;
 }
 
-/* ===== LOCATION IN SECURITY MONITORING ===== */
-
 .ud-alert-body {
     display: flex;
     flex-direction: column;
@@ -2193,7 +2151,6 @@ body {
     letter-spacing: 0.02em;
 }
 
-/* alert-type tinting for location badge */
 .ud-alert-ip     .ud-alert-location { background: #1a2535; }
 .ud-alert-time   .ud-alert-location { background: #2a2215; }
 .ud-alert-bruteforce .ud-alert-location { background: #251520; }
