@@ -1177,7 +1177,6 @@ def parse_device(user_agent):
         "display": f"{label} · {browser}"
     }
 
-last_ip = '8.8.8.8'
 def analyze_security(user_id, notify=True):
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
@@ -1195,7 +1194,8 @@ def analyze_security(user_id, notify=True):
 
     if not logs:
         return alerts
-
+    
+    last_ip = logs[0]['ip_address']
     login_logs = [l for l in logs if l['action'] in ['Login', 'Login (2FA)']]
     if login_logs and login_logs[0].get('user_agent'):
         last_device = parse_device(login_logs[0]['user_agent'])
